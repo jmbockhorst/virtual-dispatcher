@@ -1,129 +1,106 @@
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var planes = [];
-var aircraftList = [];
-var host = "";
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-window.addEventListener("load", start, false);
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
-function start(){
-    loadPlanes();
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var host = "http://lvh.me:8080";
+// host = "";
+
+$(document).ready(function () {
     loadWaitingList();
-}
+});
 
-function loadPlanes(){
-    planeTimer = setInterval(planeLoader, 1000);
+$("#planesList").on('change', '#maintenanceTrigger', function () {
+    var planeId = $(this).attr("data-id");
+    if ($(this).is(':checked')) {
+        //Maintenance mode is now on
+        $.ajax({
+            type: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            url: host + '/api/aircraft/' + planeId,
+            data: JSON.stringify({
+                operational: false
+            })
+        });
+    } else {
+        //Maintenance mode is now off
+        $.ajax({
+            type: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            url: host + '/api/aircraft/' + planeId,
+            data: JSON.stringify({
+                operational: true
+            })
+        });
+    }
+});
 
-    $("#planesList").on('mouseenter', '#maintenanceTrigger', function() {
-        //Do not refresh page
-        clearInterval(planeTimer);
-    });
-
-    $("#planesList").on('mouseleave', '#maintenanceTrigger', function() {
-        //Start refreshing page again
-        planeTimer = setInterval(planeLoader, 1000);
-    });
-
-    $(document).on('click', function() {
-        //Start refreshing page again
-        planeTimer = setInterval(planeLoader, 1000);
-    });
-
-    $("#planesList").on('change', '#maintenanceTrigger', function() {
-        var planeId = $(this).attr("data-id");
-        if($(this).is(':checked')){
-            //Maintenance mode is now on
-            var newPlane = '<div class = "plane"><div class="planeBox">';
-            newPlane += '<div class="planeInfoBox" id="matienenceBox"><img class="infoImg" src="images/maintenance.png"/><div id="maintenance" class="infoText">Maintenance</div>';
-            newPlane += '<form action="#" method="POST"><input type="checkbox" id="maintenanceTrigger" data-id="' + planeId + '" checked></form></div></div>';
-            newPlane += '<img class="tailBottom" src="images/tail_maintenance.png"/><img class="tailTop" src="images/tail_top.png"/><div id="planeNumber">' + planeId + '</div></div>';
-            aircraftList[planeId - 1] = newPlane;
-
-            var htmlList = "";
-            aircraftList.forEach(function(item){
-                htmlList += item;
-            });
-
-            //Set the planes list html
-            $("#planesList").html(htmlList);
-
-            $.ajax({
-                type: 'POST',
-                headers: { 
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json' 
-                },
-                url: host + '/api/aircraft/' + planeId,
-                data: JSON.stringify({
-                    operational: false
-                })
-            });
-        } else {
-            //Maintenance mode is now off
-            var newPlane = '<div class = "plane"><div class="planeBox">';
-            newPlane += '<div class="planeInfoBox" id="matienenceBox"><img class="infoImg" src="images/maintenance.png"/><div id="maintenance" class="infoText">Maintenance</div>';
-            newPlane += '<form action="#" method="POST"><input type="checkbox" id="maintenanceTrigger" data-id="' + planeId + '"></form></div></div>';
-            newPlane += '<img class="tailBottom" src="images/tail_available.png"/><img class="tailTop" src="images/tail_top.png"/><div id="planeNumber">' + planeId + '</div></div>';
-            aircraftList[planeId - 1] = newPlane;
-
-            var htmlList = "";
-            aircraftList.forEach(function(item){
-                htmlList += item;
-            });
-
-            //Set the planes list html
-            $("#planesList").html(htmlList);
-
-            $.ajax({
-                type: 'POST',
-                headers: { 
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json' 
-                },
-                url: host + '/api/aircraft/' + planeId,
-                data: JSON.stringify({
-                    operational: true
-                })
-            });
-        }
-    });
-}
-
-function loadWaitingList(){
+function loadWaitingList() {
     var waitingList = [];
-    
-    setInterval(function(){
-        var url = host + "/api/availability"; 
-        $.getJSON(url, function(waitingPilots) {
-            waitingPilots.sort(function(a, b) {
+
+    setInterval(function () {
+        var url = host + "/api/availability";
+        $.getJSON(url, function (waitingPilots) {
+            waitingPilots.sort(function (a, b) {
                 return a.timeCreated - b.timeCreated;
             });
 
             var waitList = "";
 
             var counter = 0;
-            waitingPilots.forEach(function(pilot){
-                var timeDiff = getTimeDiff(pilot.timeCreated); 
-                
-                var url = host + "/api/pilots"; 
-                $.getJSON(url, function(p) {
-                    for(let pilotInfo of p){
-                        if(pilotInfo.id == pilot.pilotId){
-                            var name = pilotInfo.firstName + " " + pilotInfo.lastName;
-                            var newList = '<div class = "pilot"><div class = "pilotBox"><div class = "pilotInfoBoxBig">';
-                            newList += '<img class="infoImg" src="images/pilot.png"/> <div id="pilotName" class="bigInfoText">';
-                            newList += name;
-                            newList += '</div></div><div class = "pilotInfoBox"><img class="infoImg" src="images/time.png"/>';
-                            newList += '<div id="waitTime" class="infoText">';
-                            newList += 'Has been waiting for ' + timeDiff;
-                            newList += '</div> </div></div></div>';
+            waitingPilots.forEach(function (pilot) {
+                var timeDiff = getTimeDiff(pilot.timeCreated);
 
-                            waitingList[counter++] = newList;
-                            break;
+                var url = host + "/api/pilots";
+                $.getJSON(url, function (p) {
+                    var _iteratorNormalCompletion = true;
+                    var _didIteratorError = false;
+                    var _iteratorError = undefined;
+
+                    try {
+                        for (var _iterator = p[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                            var pilotInfo = _step.value;
+
+                            if (pilotInfo.id == pilot.pilotId) {
+                                var name = pilotInfo.firstName + " " + pilotInfo.lastName;
+                                var newList = '<div class = "pilot"><div class = "pilotBox"><div class = "pilotInfoBoxBig">';
+                                newList += '<img class="infoImg" src="images/pilot.png"/> <div id="pilotName" class="bigInfoText">';
+                                newList += name;
+                                newList += '</div></div><div class = "pilotInfoBox"><img class="infoImg" src="images/time.png"/>';
+                                newList += '<div id="waitTime" class="infoText">';
+                                newList += 'Has been waiting for ' + timeDiff;
+                                newList += '</div> </div></div></div>';
+
+                                waitingList[counter++] = newList;
+                                break;
+                            }
+                        }
+                    } catch (err) {
+                        _didIteratorError = true;
+                        _iteratorError = err;
+                    } finally {
+                        try {
+                            if (!_iteratorNormalCompletion && _iterator.return) {
+                                _iterator.return();
+                            }
+                        } finally {
+                            if (_didIteratorError) {
+                                throw _iteratorError;
+                            }
                         }
                     }
 
                     var htmlList = "";
-                    waitingList.forEach(function(item){
+                    waitingList.forEach(function (item) {
                         htmlList += item;
                     });
 
@@ -134,7 +111,7 @@ function loadWaitingList(){
             waitingList = waitingList.slice(0, waitingPilots.length);
 
             var htmlList = "";
-            waitingList.forEach(function(item){
+            waitingList.forEach(function (item) {
                 htmlList += item;
             });
 
@@ -143,9 +120,9 @@ function loadWaitingList(){
     }, 1000);
 }
 
-function getTimeDiff(oldTime){
+function getTimeDiff(oldTime) {
     var time = Date.now();
-    var timeOffset = (new Date).getTimezoneOffset() * 60 * 1000;
+    var timeOffset = new Date().getTimezoneOffset() * 60 * 1000;
     time -= timeOffset;
 
     var timeDiff;
@@ -155,131 +132,229 @@ function getTimeDiff(oldTime){
     var secondsDiff = millsDiff / 1000;
     var minutesDiff = Math.floor(secondsDiff / 60) % 60;
     var hoursDiff = Math.floor(secondsDiff / 60 / 60);
-    
-    if(hoursDiff == 0){
+
+    if (hoursDiff == 0) {
         timeDiff = minutesDiff + " minutes";
     } else {
         timeDiff = hoursDiff + " hours and " + minutesDiff + " minutes";
     }
 
     //Take off last s if minute is 1
-    if(minutesDiff == 1){
+    if (minutesDiff == 1) {
         timeDiff = timeDiff.substr(0, timeDiff.length - 1);
     }
 
     return timeDiff;
 }
 
-function getPilotName(id){
-    for (let pilot of pilots) {
-        if(pilot.id == id){
-            return pilot.firstName + " " + pilot.lastName;
-        }
-    }
-    // Default return case, reached if the pilot with given id was not found in pilots array
-    return "Unknown Pilot";
-}
-
-function planeLoader(){
-    var url = host + "/api/aircraft"; 
-    $.getJSON(url, function(planes) {
-        planes.forEach(function(plane) {
-            //Check if plane is operational
-            if(plane.operational){
-                //Get flights
-                var url = host + "/api/flights?aircraftId=" + plane.id + "&completed=false"; 
-                $.getJSON(url, function(flight) {
-                    //Get pilots
-                    var url = host + "/api/pilots"; 
-                    $.getJSON(url, function(pilots) {
-                        var pilotName = "";
-
-                        if(flight.length > 0){
-                            //Find pilot with matching id
-                            for(let p of pilots){
-                                if(p.id == flight[0].pilotId){
-                                    pilotName = p.firstName + " " + p.lastName;
-                                    break;
-                                }
-                            }
-                        }
-                        
-                        //Generate plane html code
-                        var newPlane = '<div class="plane"><div class="planeBox">';
-                        if(flight.length > 0){
-                            newPlane += '<div class="planeInfoBox"><img class="infoImg" src="images/pilot.png"/><div class="infoText" id="pilotName">' + pilotName + '</div></div>';
-                            newPlane += '<div class="planeInfoBox"><img class="infoImg" src="images/zone.png"/><div class="infoText" id="zone">Zone ' + flight[0].zoneId + '</div></div>';
-                        } else {
-                            newPlane += '<div class="planeInfoBox';
-                            newPlane += '" id="maintenanceBox"><img class="infoImg" src="images/maintenance.png"/><div id="maintenance" class="infoText">Maintenance</div>';
-                            newPlane += '<form action="#" method="POST"><input type="checkbox" id="maintenanceTrigger" data-id="' + plane.id + '"></form></div>';
-                        }
-
-                        if(flight.length > 0){
-                            if(flight[0].started){
-                                newPlane += '<div class="planeInfoBox"><img class="infoImg" src="images/status.png"/><div class="infoText">In the air</div></div>';
-                            } else {
-                                newPlane += '<div class="planeInfoBox"><img class="infoImg" src="images/status.png"/><div class="infoText">On the ground</div></div>';
-                            }
-                        }
-
-                        newPlane += '</div><img class="tailBottom" src="images/';
-
-                        if(flight.length > 0){
-                            //The plane is in use
-                            newPlane += 'tail_inuse';
-                        } else {
-                            //The plane is available
-                            newPlane += 'tail_available';
-                        }
-                        newPlane += '.png"/><img class="tailTop" src="images/tail_top.png"/><div id="planeNumber">' + plane.id + '</div></div>';
-                        aircraftList[plane.id - 1] = newPlane;
-                        
-                        var htmlList = "";
-                        aircraftList.forEach(function(item){
-                            htmlList += item;
-                        });
-
-                        //Set the planes list html
-                        $("#planesList").html(htmlList);
-                    });
-                });
-            } else {
-                //Create plane that needs maintenance
-                var newPlane = '<div class = "plane"><div class="planeBox">';
-                newPlane += '<div class="planeInfoBox" id="matienenceBox"><img class="infoImg" src="images/maintenance.png"/><div id="maintenance" class="infoText">Maintenance</div>';
-                newPlane += '<form action="#" method="POST"><input type="checkbox" id="maintenanceTrigger" data-id="' + plane.id + '" checked></form></div></div>';
-                newPlane += '<img class="tailBottom" src="images/tail_maintenance.png"/><img class="tailTop" src="images/tail_top.png"/><div id="planeNumber">' + plane.id + '</div></div>';
-                
-                aircraftList[plane.id - 1] =  newPlane;
-
-                var htmlList = "";
-                aircraftList.forEach(function(item){
-                    htmlList += item;
-                });
-
-                $("#planesList").html(htmlList);
-            }
-        });
-    });
-}
-
-$(document).ready(function(){
+$(document).ready(function () {
     $("#toolTipTable").hide();
     $("#toolTipTable").removeClass("hidden");
 
-    $("#toolTipImg").on("mouseenter", function(){
+    $("#toolTipImg").on("mouseenter", function () {
         $("#toolTipTable").fadeIn("fast");
     });
 
-    $("#toolTipTable").on("mouseleave", function(){
+    $("#toolTipTable").on("mouseleave", function () {
         $("#toolTipTable").fadeOut("fast");
     });
 
-    $("#toolTipImg").on("mouseleave", function(event){
+    $("#toolTipImg").on("mouseleave", function (event) {
         //Dont hide if leaving up
-        if(event.pageY > $("#toolTipImg").offset().top){
+        if (event.pageY > $("#toolTipImg").offset().top) {
             $("#toolTipTable").fadeOut("fast");
         }
     });
 });
+
+//New React code
+
+var Plane = function (_React$Component) {
+    _inherits(Plane, _React$Component);
+
+    function Plane() {
+        _classCallCheck(this, Plane);
+
+        return _possibleConstructorReturn(this, (Plane.__proto__ || Object.getPrototypeOf(Plane)).apply(this, arguments));
+    }
+
+    _createClass(Plane, [{
+        key: "render",
+        value: function render() {
+            return React.createElement(
+                "div",
+                { className: "plane" },
+                React.createElement(
+                    "div",
+                    { className: "planeBox" },
+                    this.props.pilot != null ?
+                    //Render this code if there is a flight
+                    [React.createElement(
+                        "div",
+                        { className: "planeInfoBox", key: "1" },
+                        React.createElement("img", { className: "infoImg", src: "images/pilot.png" }),
+                        React.createElement(
+                            "div",
+                            { className: "infoText", id: "pilotName" },
+                            this.props.pilot
+                        )
+                    ), React.createElement(
+                        "div",
+                        { className: "planeInfoBox", key: "2" },
+                        React.createElement("img", { className: "infoImg", src: "images/zone.png" }),
+                        React.createElement(
+                            "div",
+                            { className: "infoText", id: "zone" },
+                            "Zone ",
+                            this.props.zone
+                        )
+                    )] :
+                    //Else render this code
+                    React.createElement(
+                        "div",
+                        { className: "planeInfoBox", id: "maintenanceBox" },
+                        React.createElement("img", { className: "infoImg", src: "images/maintenance.png" }),
+                        React.createElement(
+                            "div",
+                            { id: "maintenance", className: "infoText" },
+                            "Maintenance"
+                        ),
+                        React.createElement(
+                            "form",
+                            { action: "#", method: "POST" },
+                            this.props.plane.operational ? React.createElement("input", { type: "checkbox", id: "maintenanceTrigger", "data-id": this.props.plane.id }) : React.createElement("input", { type: "checkbox", id: "maintenanceTrigger", "data-id": this.props.plane.id, defaultChecked: "true" })
+                        )
+                    ),
+                    this.props.pilot != null &&
+                    //Show status if there is a flight
+                    React.createElement(
+                        "div",
+                        { className: "planeInfoBox" },
+                        React.createElement("img", { className: "infoImg", src: "images/status.png" }),
+                        React.createElement(
+                            "div",
+                            { className: "infoText" },
+                            this.props.started ? "In the air" : "On the ground"
+                        )
+                    )
+                ),
+                this.props.plane.operational ? this.props.pilot != null ? React.createElement("img", { className: "tailBottom", src: "images/tail_inuse.png" }) : React.createElement("img", { className: "tailBottom", src: "images/tail_available.png" }) : React.createElement("img", { className: "tailBottom", src: "images/tail_maintenance.png" }),
+                React.createElement("img", { className: "tailTop", src: "images/tail_top.png" }),
+                React.createElement(
+                    "div",
+                    { id: "planeNumber" },
+                    this.props.plane.id
+                )
+            );
+        }
+    }]);
+
+    return Plane;
+}(React.Component);
+
+var PlaneList = function (_React$Component2) {
+    _inherits(PlaneList, _React$Component2);
+
+    function PlaneList(props) {
+        _classCallCheck(this, PlaneList);
+
+        var _this2 = _possibleConstructorReturn(this, (PlaneList.__proto__ || Object.getPrototypeOf(PlaneList)).call(this, props));
+
+        _this2.state = {
+            planes: [],
+            flights: [],
+            pilots: []
+        };
+        return _this2;
+    }
+
+    _createClass(PlaneList, [{
+        key: "loadData",
+        value: function loadData() {
+            var _this3 = this;
+
+            var url = host + "/api/aircraft";
+            $.getJSON(url, function (planesList) {
+                var newPlanes = [];
+                planesList.forEach(function (plane) {
+                    newPlanes.push(plane);
+                });
+
+                _this3.setState({
+                    planes: newPlanes
+                });
+            });
+
+            url = host + "/api/flights?completed=false";
+            $.getJSON(url, function (flightList) {
+                var newFlights = [];
+                flightList.forEach(function (flight) {
+                    //Put each flight in array spot associated with plane
+                    newFlights[flight.aircraftId - 1] = flight;
+                });
+
+                _this3.setState({
+                    flights: newFlights
+                });
+            });
+
+            url = host + "/api/pilots";
+            $.getJSON(url, function (pilotList) {
+                var newPilots = [];
+                pilotList.forEach(function (pilot) {
+                    newPilots.push(pilot);
+                });
+
+                _this3.setState({
+                    pilots: newPilots
+                });
+            });
+        }
+    }, {
+        key: "componentDidMount",
+        value: function componentDidMount() {
+            var _this4 = this;
+
+            this.timerID = setInterval(function () {
+                return _this4.loadData();
+            }, 1000);
+        }
+    }, {
+        key: "componentWillUnmount",
+        value: function componentWillUnmount() {
+            clearInterval(this.timerID);
+        }
+    }, {
+        key: "render",
+        value: function render() {
+            var _this5 = this;
+
+            var planesList = this.state.planes.map(function (p, i) {
+                var flight = _this5.state.flights[i];
+                var pilot = null;
+                var zone = null;
+                var started = null;
+
+                if (flight != null) {
+                    for (i = 0; i < _this5.state.pilots.length; i++) {
+                        if (_this5.state.pilots[i].id === flight.pilotId) {
+                            pilot = _this5.state.pilots[i].firstName + " " + _this5.state.pilots[i].lastName;
+                            break;
+                        }
+                    }
+
+                    zone = flight.zoneId;
+                    started = flight.started;
+                }
+
+                return React.createElement(Plane, { key: p.id, plane: p, pilot: pilot, zone: zone, started: started });
+            });
+
+            return planesList;
+        }
+    }]);
+
+    return PlaneList;
+}(React.Component);
+
+ReactDOM.render(React.createElement(PlaneList, null), document.getElementById("planesList"));

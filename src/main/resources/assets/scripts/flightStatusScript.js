@@ -5,51 +5,49 @@ var currentFlight;
 
 var host = "";
 
-$(document).ready(function(){
-    var loggedIn  = false;
+$(document).ready(function () {
+    var loggedIn = false;
 
     //Show correct page based on login status
-    if(!loggedIn){
-        showLogin()
+    if (!loggedIn) {
+        showLogin();
     } else {
         showFlight();
     }
 
-    var url = host + "/api/pilots"
-    $.getJSON(url, function(data) { 
-        data.forEach(function(pilot){
+    var url = host + "/api/pilots";
+    $.getJSON(url, function (data) {
+        data.forEach(function (pilot) {
             pilots.push(pilot);
         });
     });
 
     //When name box is typed into
-    $("#name").on("input", function() {
+    $("#name").on("input", function () {
         $("#searchList").empty();
         var name = this.value;
-        if(name != ""){
-            pilots.forEach(function(pilot){
+        if (name != "") {
+            pilots.forEach(function (pilot) {
                 //Check if full name is equal to searched
                 //Check if only part of searched name is found
                 var fullName = pilot.firstName + " " + pilot.lastName;
-                if(fullName.toLowerCase() == name.toLowerCase()){
+                if (fullName.toLowerCase() == name.toLowerCase()) {
                     $("#name").val(fullName);
                     $("#name").attr("data-id", pilot.id);
-                } else if(pilot.firstName.startsWith(name) || pilot.firstName.toLowerCase().startsWith(name.toLowerCase()) || 
-                   fullName.startsWith(name) || fullName.toLowerCase().startsWith(name.toLowerCase())
-                ){
+                } else if (pilot.firstName.startsWith(name) || pilot.firstName.toLowerCase().startsWith(name.toLowerCase()) || fullName.startsWith(name) || fullName.toLowerCase().startsWith(name.toLowerCase())) {
                     $("#searchList").append("<div class='searchItem' data-id=" + pilot.id + ">" + pilot.firstName + " " + pilot.lastName + "</div>");
                 }
             });
 
             //Check last names at the end
-            pilots.forEach(function(pilot){
-                if(pilot.lastName.startsWith(name) || pilot.lastName.toLowerCase().startsWith(name.toLowerCase())){
+            pilots.forEach(function (pilot) {
+                if (pilot.lastName.startsWith(name) || pilot.lastName.toLowerCase().startsWith(name.toLowerCase())) {
                     $("#searchList").append("<div class='searchItem' data-id=" + pilot.id + ">" + pilot.firstName + " " + pilot.lastName + "</div>");
                 }
             });
         }
 
-        $(".searchItem").on("click", function() {
+        $(".searchItem").on("click", function () {
             $("#name").val($(this).html());
             var id = $(this).attr("data-id");
             $("#name").attr("data-id", id);
@@ -58,7 +56,7 @@ $(document).ready(function(){
     });
 
     //When checkin/out button is clicked
-    $("#loginForm").submit(function(event){
+    $("#loginForm").submit(function (event) {
         event.preventDefault();
 
         //Get name and pilot_id
@@ -71,83 +69,103 @@ $(document).ready(function(){
         refreshStatus();
     });
 
-    function showLogin(){
+    function showLogin() {
         $("#loginView").addClass("visible");
         $("#loginView").removeClass("hidden");
         $("#flightView").addClass("hidden");
         $("#flightView").removeClass("visible");
     }
 
-    function refreshStatus(){
+    function refreshStatus() {
         loadFlightInfo();
 
-        setInterval(function(){
+        setInterval(function () {
             loadFlightInfo();
         }, 1000);
     }
-    
-    function showFlight(){
+
+    function showFlight() {
         $("#loginView").addClass("hidden");
         $("#loginView").removeClass("visible");
         $("#flightView").addClass("visible");
         $("#flightView").removeClass("hidden");
     }
 
-    function loadFlightInfo(){
-        var url = host + "/api/flights"
-        $.getJSON(url, function(flightList) { 
-            for(let flight of flightList){
-                if(flight.pilotId == pilotId){
-                    currentFlight = flight;
+    function loadFlightInfo() {
+        var url = host + "/api/flights";
+        $.getJSON(url, function (flightList) {
+            var _iteratorNormalCompletion = true;
+            var _didIteratorError = false;
+            var _iteratorError = undefined;
 
-                    $("#flightNumber").html("Flight# " + flight.id);
-                    $("#aircraftNumber").html("Aircraft " + flight.aircraftId);
-                    $("#pilotName").html(pilotName);
+            try {
+                for (var _iterator = flightList[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                    var flight = _step.value;
 
-                    if(flight.completed){
-                        //Flight is completed
-                        $("#status").html("Flight Completed");
+                    if (flight.pilotId == pilotId) {
+                        currentFlight = flight;
 
-                        $("#options").addClass("hidden");
-                        $("#options").removeClass("visible");
-                    } else {
-                        $("#options").addClass("visible");
-                        $("#options").removeClass("hidden");
+                        $("#flightNumber").html("Flight# " + flight.id);
+                        $("#aircraftNumber").html("Aircraft " + flight.aircraftId);
+                        $("#pilotName").html(pilotName);
 
-                        if(flight.started){
-                            //Flight is started but not completed
-                            $("#status").html("Flight in progress");
+                        if (flight.completed) {
+                            //Flight is completed
+                            $("#status").html("Flight Completed");
 
-                            $("#flightStarted").addClass("hidden");
-                            $("#flightStarted").removeClass("visible")
-
-                            $("#flightFinished").addClass("visible");
-                            $("#flightFinished").removeClass("hidden")
-
+                            $("#options").addClass("hidden");
+                            $("#options").removeClass("visible");
                         } else {
-                            //Flight is not started
-                            $("#status").html("Flight not started");
+                            $("#options").addClass("visible");
+                            $("#options").removeClass("hidden");
 
-                            $("#flightStarted").addClass("visible");
-                            $("#flightStarted").removeClass("hidden")
+                            if (flight.started) {
+                                //Flight is started but not completed
+                                $("#status").html("Flight in progress");
 
-                            $("#flightFinished").addClass("hidden");
-                            $("#flightFinished").removeClass("visible");
+                                $("#flightStarted").addClass("hidden");
+                                $("#flightStarted").removeClass("visible");
+
+                                $("#flightFinished").addClass("visible");
+                                $("#flightFinished").removeClass("hidden");
+                            } else {
+                                //Flight is not started
+                                $("#status").html("Flight not started");
+
+                                $("#flightStarted").addClass("visible");
+                                $("#flightStarted").removeClass("hidden");
+
+                                $("#flightFinished").addClass("hidden");
+                                $("#flightFinished").removeClass("visible");
+                            }
                         }
-                    }
 
-                    showFlight();
+                        showFlight();
+                    }
+                }
+            } catch (err) {
+                _didIteratorError = true;
+                _iteratorError = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion && _iterator.return) {
+                        _iterator.return();
+                    }
+                } finally {
+                    if (_didIteratorError) {
+                        throw _iteratorError;
+                    }
                 }
             }
         });
     }
 
-    $("#flightStarted").on("click", function(){
+    $("#flightStarted").on("click", function () {
         $.ajax({
             type: 'POST',
-            headers: { 
+            headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json' 
+                'Content-Type': 'application/json'
             },
             url: host + '/api/flights/' + currentFlight.id,
             data: JSON.stringify({
@@ -156,12 +174,12 @@ $(document).ready(function(){
         });
     });
 
-    $("#flightFinished").on("click", function(){
+    $("#flightFinished").on("click", function () {
         $.ajax({
             type: 'POST',
-            headers: { 
+            headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json' 
+                'Content-Type': 'application/json'
             },
             url: host + '/api/flights/' + currentFlight.id,
             data: JSON.stringify({
@@ -170,12 +188,12 @@ $(document).ready(function(){
         });
     });
 
-    $("#needsMaintenance").on("click", function(){
+    $("#needsMaintenance").on("click", function () {
         $.ajax({
             type: 'POST',
-            headers: { 
+            headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json' 
+                'Content-Type': 'application/json'
             },
             url: host + '/api/aircraft/' + currentFlight.aircraftId,
             data: JSON.stringify({
@@ -185,9 +203,9 @@ $(document).ready(function(){
 
         $.ajax({
             type: 'POST',
-            headers: { 
+            headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json' 
+                'Content-Type': 'application/json'
             },
             url: host + '/api/flights/' + currentFlight.id,
             data: JSON.stringify({
@@ -196,4 +214,3 @@ $(document).ready(function(){
         });
     });
 });
-
