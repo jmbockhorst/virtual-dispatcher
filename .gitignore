@@ -89,6 +89,11 @@ buildNumber.properties
 .mvn/timing.properties
 .mvn/wrapper/maven-wrapper.jar
 
+#React
+**/node_modules/
+**/assets/package.json
+**/assets/package-lock.json
+
 
 # End of https://www.gitignore.io/api/maven,intellij+iml
 

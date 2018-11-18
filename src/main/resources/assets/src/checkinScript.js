@@ -2,43 +2,46 @@ var pilots = [];
 
 var host = "";
 
-$(document).ready(function () {
-    var url = host + "/api/pilots";
-    $.getJSON(url, function (data) {
-        data.forEach(function (pilot) {
+$(document).ready(function(){
+    var url = host + "/api/pilots"
+    $.getJSON(url, function(data) { 
+        data.forEach(function(pilot){
             pilots.push(pilot);
         });
     });
 
     //When name box is typed into
-    $("#name").on("input", function () {
+    $("#name").on("input", function() {
         $("#searchList").empty();
         var name = this.value;
-        if (name != "") {
-            pilots.forEach(function (pilot) {
+        if(name != ""){
+            pilots.forEach(function(pilot){
                 //Check if full name is equal to searched
                 //Check if only part of searched name is found
                 var fullName = pilot.firstName + " " + pilot.lastName;
-                if (fullName.toLowerCase() == name.toLowerCase()) {
+                if(fullName.toLowerCase() == name.toLowerCase()){
                     $("#name").val(fullName);
                     $("#name").attr("data-id", pilot.id);
 
                     //Set button if checking in or out
                     setAction(pilot.id);
-                } else if (pilot.firstName.startsWith(name) || pilot.firstName.toLowerCase().startsWith(name.toLowerCase()) || fullName.startsWith(name) || fullName.toLowerCase().startsWith(name.toLowerCase())) {
+                    
+                } else if(pilot.firstName.startsWith(name) || pilot.firstName.toLowerCase().startsWith(name.toLowerCase()) || 
+                   fullName.startsWith(name) || fullName.toLowerCase().startsWith(name.toLowerCase())
+                ){
                     $("#searchList").append("<div class='searchItem' data-id=" + pilot.id + ">" + pilot.firstName + " " + pilot.lastName + "</div>");
                 }
             });
 
             //Check last names at the end
-            pilots.forEach(function (pilot) {
-                if (pilot.lastName.startsWith(name) || pilot.lastName.toLowerCase().startsWith(name.toLowerCase())) {
+            pilots.forEach(function(pilot){
+                if(pilot.lastName.startsWith(name) || pilot.lastName.toLowerCase().startsWith(name.toLowerCase())){
                     $("#searchList").append("<div class='searchItem' data-id=" + pilot.id + ">" + pilot.firstName + " " + pilot.lastName + "</div>");
                 }
             });
         }
 
-        $(".searchItem").on("click", function () {
+        $(".searchItem").on("click", function() {
             $("#name").val($(this).html());
             var id = $(this).attr("data-id");
             $("#name").attr("data-id", id);
@@ -50,7 +53,7 @@ $(document).ready(function () {
     });
 
     //When checkin/out button is clicked
-    $("#checkinForm").submit(function (event) {
+    $("#checkinForm").submit(function(event){
         event.preventDefault();
 
         //Get name and pilot_id
@@ -61,21 +64,21 @@ $(document).ready(function () {
         //Get checkin or checkout
         var type = $("#checkin").attr("name");
 
-        if (type == "checkin") {
+        if(type == "checkin"){
             $.ajax({
                 type: 'POST',
-                headers: {
+                headers: { 
                     'Accept': 'application/json',
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json' 
                 },
                 url: host + '/api/availability',
                 data: JSON.stringify({
                     pilotId: pilot_id
                 }),
-                success: function success() {
+                success:function(){
                     var good = true;
                     //Test if good message
-                    if (good) {
+                    if(good){
                         //Try to schedule flight
                         $(".message").html("You have checked in successfully");
                         $(".message").attr("id", "goodMessage");
@@ -89,7 +92,7 @@ $(document).ready(function () {
                     //Set message id for good or bad message
 
                     //Fade out message after 3 seconds
-                    setTimeout(function () {
+                    setTimeout(function(){
                         $(".message").fadeOut("slow", function () {
                             $(".message").html("");
                             $(".message").fadeIn("fast");
@@ -100,18 +103,18 @@ $(document).ready(function () {
         } else {
             $.ajax({
                 type: 'DELETE',
-                headers: {
+                headers: { 
                     'Accept': 'application/json',
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json' 
                 },
                 url: host + '/api/availability',
                 data: JSON.stringify({
                     pilotId: pilot_id
                 }),
-                success: function success() {
+                success:function(){
                     var good = true;
                     //Test if good message
-                    if (good) {
+                    if(good){
                         //Try to schedule flight
                         $(".message").html("You have checked out successfully");
                         $(".message").attr("id", "goodMessage");
@@ -121,7 +124,7 @@ $(document).ready(function () {
                     }
 
                     //Fade out message after 10 seconds
-                    setTimeout(function () {
+                    setTimeout(function(){
                         $(".message").fadeOut("slow", function () {
                             $(".message").html("");
                             $(".message").fadeIn("fast");
@@ -138,45 +141,24 @@ $(document).ready(function () {
     });
 });
 
-function setAction(id) {
-    var url = host + "/api/availability";
-    $.getJSON(url, function (availablilty) {
+function setAction(id){
+    var url = host + "/api/availability"
+    $.getJSON(url, function(availablilty) {
         var action = "checkin";
-        var _iteratorNormalCompletion = true;
-        var _didIteratorError = false;
-        var _iteratorError = undefined;
-
-        try {
-            for (var _iterator = availablilty[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                var pilot = _step.value;
-
-                if (pilot.pilotId == id) {
-                    action = "checkout";
-                }
-            }
-        } catch (err) {
-            _didIteratorError = true;
-            _iteratorError = err;
-        } finally {
-            try {
-                if (!_iteratorNormalCompletion && _iterator.return) {
-                    _iterator.return();
-                }
-            } finally {
-                if (_didIteratorError) {
-                    throw _iteratorError;
-                }
+        for(let pilot of availablilty){
+            if(pilot.pilotId == id){
+                action = "checkout";
             }
         }
 
         $("#checkin").attr("name", action);
 
-        if (action == "checkin") {
+        if(action == "checkin"){
             $("#checkin").val("Check In");
         } else {
             $("#checkin").val("Check Out");
         }
 
         $("#checkin").attr("disabled", false);
-    });
+    }); 
 }
