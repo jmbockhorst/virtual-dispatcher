@@ -2,100 +2,8 @@
 var host = "http://lvh.me:8080";
 // host = "";
 
-$(document).ready(function(){
-    loadWaitingList();
-});
-    
-$("#planesList").on('change', '#maintenanceTrigger', function() {
-    var planeId = $(this).attr("data-id");
-    if($(this).is(':checked')){
-        //Maintenance mode is now on
-        $.ajax({
-            type: 'POST',
-            headers: { 
-                'Accept': 'application/json',
-                'Content-Type': 'application/json' 
-            },
-            url: host + '/api/aircraft/' + planeId,
-            data: JSON.stringify({
-                operational: false
-            })
-        });
-    } else {
-        //Maintenance mode is now off
-        $.ajax({
-            type: 'POST',
-            headers: { 
-                'Accept': 'application/json',
-                'Content-Type': 'application/json' 
-            },
-            url: host + '/api/aircraft/' + planeId,
-            data: JSON.stringify({
-                operational: true
-            })
-        });
-    }
-});
-
-function loadWaitingList(){
-    var waitingList = [];
-    
-    setInterval(function(){
-        var url = host + "/api/availability"; 
-        $.getJSON(url, function(waitingPilots) {
-            waitingPilots.sort(function(a, b) {
-                return a.timeCreated - b.timeCreated;
-            });
-
-            var waitList = "";
-
-            var counter = 0;
-            waitingPilots.forEach(function(pilot){
-                var timeDiff = getTimeDiff(pilot.timeCreated); 
-                
-                var url = host + "/api/pilots"; 
-                $.getJSON(url, function(p) {
-                    for(let pilotInfo of p){
-                        if(pilotInfo.id == pilot.pilotId){
-                            var name = pilotInfo.firstName + " " + pilotInfo.lastName;
-                            var newList = '<div class = "pilot"><div class = "pilotBox"><div class = "pilotInfoBoxBig">';
-                            newList += '<img class="infoImg" src="images/pilot.png"/> <div id="pilotName" class="bigInfoText">';
-                            newList += name;
-                            newList += '</div></div><div class = "pilotInfoBox"><img class="infoImg" src="images/time.png"/>';
-                            newList += '<div id="waitTime" class="infoText">';
-                            newList += 'Has been waiting for ' + timeDiff;
-                            newList += '</div> </div></div></div>';
-
-                            waitingList[counter++] = newList;
-                            break;
-                        }
-                    }
-
-                    var htmlList = "";
-                    waitingList.forEach(function(item){
-                        htmlList += item;
-                    });
-
-                    $("#pilotList").html(htmlList);
-                });
-            });
-
-            waitingList = waitingList.slice(0, waitingPilots.length);
-
-            var htmlList = "";
-            waitingList.forEach(function(item){
-                htmlList += item;
-            });
-
-            $("#pilotList").html(htmlList);
-        });
-    }, 1000);
-}
-
 function getTimeDiff(oldTime){
-    var time = Date.now();
-    var timeOffset = (new Date).getTimezoneOffset() * 60 * 1000;
-    time -= timeOffset;
+    var time = new Date().getTime();
 
     var timeDiff;
     var hoursDiff = 0;
@@ -140,7 +48,37 @@ $(document).ready(function(){
 });
 
 //New React code
+class InfoImage extends React.Component {
+    render(){
+        return <img className="infoImg" src={'images/' + this.props.name}/>
+    }
+}
+
+class InfoText extends React.Component {
+    render(){
+        return (
+            <div className="infoText" id={this.props.id}>{this.props.text}</div>
+        );
+    }
+}
+
 class Plane extends React.Component {
+    maintenanceChanged(planeId, event){
+        //Change maintenance mode
+        $.ajax({
+            type: 'POST',
+            headers: { 
+                'Accept': 'application/json',
+                'Content-Type': 'application/json' 
+            },
+            url: host + '/api/aircraft/' + planeId,
+            data: JSON.stringify({
+                
+                operational: (event.target.checked ? false : true),
+            })
+        });
+    }
+
     render(){
         return (
             <div className="plane">
@@ -150,25 +88,25 @@ class Plane extends React.Component {
                         //Render this code if there is a flight
                         [
                             <div className="planeInfoBox" key='1'>
-                                <img className="infoImg" src="images/pilot.png"/>
-                                <div className="infoText" id="pilotName">{this.props.pilot}</div>
+                                <InfoImage name="pilot.png"/>
+                                <InfoText id="pilotName" text={this.props.pilot}/>
                             </div>,
                             <div className="planeInfoBox" key='2'>
-                                <img className="infoImg" src="images/zone.png"/>
-                                <div className="infoText" id="zone">Zone {this.props.zone}</div>
+                                <InfoImage name="zone.png"/>
+                                <InfoText id="zone" text={'Zone ' + this.props.zone}/>
                             </div>
                         ]
                         :
                         //Else render this code
                         <div className="planeInfoBox" id="maintenanceBox">
-                            <img className="infoImg" src="images/maintenance.png"/>
-                            <div id="maintenance" className="infoText">Maintenance</div>
+                            <InfoImage name="maintenance.png"/>
+                            <InfoText id="maintenance" text="Maintenance"/>
                             <form action="#" method="POST">
                                 {
                                     this.props.plane.operational ? 
-                                    <input type="checkbox" id="maintenanceTrigger" data-id={this.props.plane.id}/>
+                                    <input type="checkbox" id="maintenanceTrigger" onChange={(e) => this.maintenanceChanged(this.props.plane.id, e)} />
                                     :
-                                    <input type="checkbox" id="maintenanceTrigger" data-id={this.props.plane.id} defaultChecked="true"/>
+                                    <input type="checkbox" id="maintenanceTrigger" onChange={(e) => this.maintenanceChanged(this.props.plane.id, e)} defaultChecked="true"/>
                                 }
                             </form>
                         </div>
@@ -178,12 +116,8 @@ class Plane extends React.Component {
                         this.props.pilot != null &&
                         //Show status if there is a flight
                         <div className="planeInfoBox">
-                            <img className="infoImg" src="images/status.png"/>
-                            <div className="infoText">
-                                {
-                                    this.props.started ? "In the air" : "On the ground"
-                                }
-                            </div>
+                            <InfoImage name="status.png"/>
+                            <InfoText text={this.props.started ? "In the air" : "On the ground"}/>
                         </div>
                     }
                 </div>
@@ -210,7 +144,6 @@ class PlaneList extends React.Component {
         this.state = {
             planes: [],
             flights: [],
-            pilots: [],
         };
     }
 
@@ -239,8 +172,180 @@ class PlaneList extends React.Component {
                 flights: newFlights,
             });
         });
+    }
 
-        url = host + "/api/pilots";
+    componentDidMount() {
+        this.timerID = setInterval(() => this.loadData(), 1000);
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.timerID);
+    }
+
+    render(){
+        const planesList = this.state.planes.map((p, i) => {
+            const flight = this.state.flights[i];
+            var pilot = null;
+            var zone = null;
+            var started = null;
+
+            if(flight != null){
+                for(i = 0; i < this.props.pilots.length; i++) {
+                    if(this.props.pilots[i].id === flight.pilotId){
+                        pilot = this.props.pilots[i].firstName + " " + this.props.pilots[i].lastName;
+                        break;
+                    }
+                }
+
+                zone = flight.zoneId;
+                started = flight.started;
+            }
+
+            return <Plane key={p.id} plane={p} pilot={pilot} zone={zone} started={started}/>
+        });
+
+        return planesList;
+    }
+}
+
+//Waiting list React code
+class WaitingPilot extends React.Component {
+    render(){
+        const timeDiff = getTimeDiff(this.props.timeCreated);
+
+        return (
+            <div className = "pilot">
+                <div className = "pilotBox">
+                    <div className = "pilotInfoBoxBig">
+                        <InfoImage name="pilot.png"/>
+                        <div id="pilotName" className="bigInfoText">{this.props.pilotName}</div>
+                    </div>
+                    <div className = "pilotInfoBox">
+                        <InfoImage name="time.png"/>
+                        <InfoText id="waitTime" text={'Has been waiting for ' + timeDiff}/>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+}
+
+class WaitingList extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            waitingPilots: [],
+        };
+    }
+
+    loadData() {
+        var url = host + "/api/availability"; 
+        $.getJSON(url, (pilotList) => {
+            const newAvailabilities = [];
+            
+            //Sort by time
+            pilotList.sort(function(a, b) {
+                return a.timeCreated - b.timeCreated;
+            });
+
+            pilotList.forEach(function(pilot){
+            const newAvails = [];
+                newAvailabilities.push(pilot);
+            });
+
+            this.setState({
+                waitingPilots: newAvailabilities,
+            });
+        });
+    }
+
+    componentDidMount() {
+        this.timerID = setInterval(() => this.loadData(), 1000);
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.timerID);
+    }
+
+    render(){
+        const waitingList = this.state.waitingPilots.map((p, i) => {
+            var pilotName = "";
+            for(i = 0; i < this.props.pilots.length; i++) {
+                if(this.props.pilots[i].id === p.pilotId){
+                    pilotName = this.props.pilots[i].firstName + " " + this.props.pilots[i].lastName;
+                    break;
+                }
+            }
+
+            return <WaitingPilot key={p.pilotId} pilotName={pilotName} timeCreated={p.timeCreated}/>
+        });
+
+        return waitingList;
+    }
+}
+
+class ListHeader extends React.Component {
+    render(){
+        return <p class="listHeader">{this.props.text}</p>
+    }
+}
+
+
+class MenuItem extends React.Component {
+    render(){
+        return (
+            <tr>
+                <td class="tipCellImg">
+                    <InfoImage name={this.props.imageName}/>
+                </td>
+                <td>{this.props.text}</td>
+            </tr>
+        );
+    }
+}
+
+class HelpMenu extends React.Component {
+    render(){
+        return (
+            <div id="toolTipInitiator">
+                <table id="toolTipTable" class="hidden">
+                    <tr>
+                        <th colspan="2">Help</th>
+                    </tr>
+                    <MenuItem text="Assigned Pilot" imageName="pilot.png" />
+                    <MenuItem text="Assigned Zone" imageName="zone.png" />
+                    <MenuItem text="In/Out Maintenance" imageName="maintenance.png" />
+                    <MenuItem text="Plane Status" imageName="status.png" />
+                    <MenuItem text="Time Waiting" imageName="time.png" />
+                    <tr>
+                        <td class="tipCellImg" id="tipColorGreen"></td>
+                        <td>Avaliable</td>
+                    </tr>
+                    <tr>
+                        <td class="tipCellImg" id="tipColorGold"></td>
+                        <td>In Use</td>
+                    </tr>
+                    <tr>
+                        <td class="tipCellImg" id="tipColorRed"></td>
+                        <td>Under Maintenance</td>
+                    </tr>
+                </table>
+                <img id="toolTipImg" src="images/question.png"/>
+            </div>
+        );
+    }
+}
+
+class App extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            pilots: [],
+        };
+    }
+
+    loadData() {
+        var url = host + "/api/pilots";
         $.getJSON(url, (pilotList) => {
             const newPilots = [];
             pilotList.forEach(function(pilot){
@@ -262,32 +367,25 @@ class PlaneList extends React.Component {
     }
 
     render(){
-        const planesList = this.state.planes.map((p, i) => {
-            const flight = this.state.flights[i];
-            var pilot = null;
-            var zone = null;
-            var started = null;
-
-            if(flight != null){
-                for(i = 0; i < this.state.pilots.length; i++) {
-                    if(this.state.pilots[i].id === flight.pilotId){
-                        pilot = this.state.pilots[i].firstName + " " + this.state.pilots[i].lastName;
-                        break;
-                    }
-                }
-
-                zone = flight.zoneId;
-                started = flight.started;
-            }
-
-            return <Plane key={p.id} plane={p} pilot={pilot} zone={zone} started={started}/>
-        });
-
-        return planesList;
+        return (
+            [
+            <div id="planeInfo" class="column">
+                <ListHeader text="Planes" />
+                <PlaneList pilots={this.state.pilots} />
+            </div>
+            ,
+            <div id="waitingList" class="column">
+                <ListHeader text="Waiting List" />
+                <WaitingList pilots={this.state.pilots} />
+            </div>
+            ,
+            <HelpMenu />
+            ]
+        );
     }
 }
 
 ReactDOM.render(
-    <PlaneList />,
-    document.getElementById("planesList")
+    <App />,
+    document.getElementById("root")
 );
