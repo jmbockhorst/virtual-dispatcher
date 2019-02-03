@@ -25,7 +25,7 @@ public class AvailabilityDAO {
      * @param availabilityMapper The {@link AvailabilityMapper}.
      */
     @Inject
-    AvailabilityDAO(
+    public AvailabilityDAO(
             final DataSource dataSource,
             final AvailabilityMapper availabilityMapper) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);

@@ -1,7 +1,7 @@
 var pilots = [];
 
 $(document).ready(function(){
-    var pilotSocket = new WebSocket('ws://' + window.location.host + "/api/pilots");
+    var pilotSocket = new WebSocket('ws://' + window.location.host + "/ws/pilots");
 
     pilotSocket.onmessage = (message) => {
         var pilotList = JSON.parse(message.data);
@@ -180,7 +180,7 @@ class App extends React.Component {
     }
 
     loadData(){
-        var pilotSocket = new WebSocket('ws://' + window.location.host + "/api/pilots");
+        var pilotSocket = new WebSocket('ws://' + window.location.host + "/ws/pilots");
 
         pilotSocket.onmessage = (message) => {
             var pilotList = JSON.parse(message.data);

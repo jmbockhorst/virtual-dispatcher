@@ -25,7 +25,7 @@ public class FlightDAO {
    * @param flightMapper The {@link FlightMapper}.
    */
   @Inject
-  FlightDAO(
+  public FlightDAO(
           final DataSource dataSource,
           final FlightMapper flightMapper) {
     this.jdbcTemplate = new JdbcTemplate(dataSource);

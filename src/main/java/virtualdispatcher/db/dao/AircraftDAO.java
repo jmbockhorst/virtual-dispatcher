@@ -22,7 +22,7 @@ public class AircraftDAO {
   private final AircraftMapper aircraftMapper;
 
   @Inject
-  AircraftDAO(final DataSource dataSource, final AircraftMapper aircraftMapper) {
+  public AircraftDAO(final DataSource dataSource, final AircraftMapper aircraftMapper) {
     this.jdbcTemplate = new JdbcTemplate(dataSource);
     this.aircraftMapper = aircraftMapper;
   }

@@ -149,8 +149,8 @@ class PlaneList extends React.Component {
     }
 
     loadData() {
-        var aircraftSocket = new WebSocket('ws://' + window.location.host + "/api/aircraft");
-        var flightSocket = new WebSocket('ws://' + window.location.host + "/api/flights");
+        var aircraftSocket = new WebSocket('ws://' + window.location.host + "/ws/aircraft");
+        var flightSocket = new WebSocket('ws://' + window.location.host + "/ws/flights");
 
         aircraftSocket.onmessage = (message) => {
             var planesList = JSON.parse(message.data);
@@ -351,7 +351,7 @@ class App extends React.Component {
     }
 
     loadData() {
-        var pilotSocket = new WebSocket('ws://' + window.location.host + "/api/pilots");
+        var pilotSocket = new WebSocket('ws://' + window.location.host + "/ws/pilots");
 
         pilotSocket.onmessage = (message) => {
             var pilotList = JSON.parse(message.data);

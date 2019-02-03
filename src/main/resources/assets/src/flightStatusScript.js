@@ -15,7 +15,7 @@ $(document).ready(function(){
         showFlight();
     }
 
-    var pilotSocket = new WebSocket('ws://' + window.location.host + "/api/pilots");
+    var pilotSocket = new WebSocket('ws://' + window.location.host + "/ws/pilots");
 
     pilotSocket.onmessage = (message) => {
         var pilotList = JSON.parse(message.data);
@@ -99,7 +99,7 @@ $(document).ready(function(){
     }
 
     function loadFlightInfo(){
-        var flightSocket = new WebSocket('ws://' + window.location.host + "/api/flights");
+        var flightSocket = new WebSocket('ws://' + window.location.host + "/ws/flights");
 
         flightSocket.onmessage = (message) => {
             var flightList = JSON.parse(message.data);
@@ -216,7 +216,7 @@ class App extends React.Component {
     }
 
     loadData(){
-        var pilotSocket = new WebSocket('ws://' + window.location.host + "/api/pilots");
+        var pilotSocket = new WebSocket('ws://' + window.location.host + "/ws/pilots");
 
         pilotSocket.onmessage = (message) => {
             var pilotList = JSON.parse(message.data);

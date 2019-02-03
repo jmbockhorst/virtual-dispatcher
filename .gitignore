@@ -91,7 +91,6 @@ buildNumber.properties
 
 #React
 **/node_modules/
-**/assets/package.json
 **/assets/package-lock.json
 
 

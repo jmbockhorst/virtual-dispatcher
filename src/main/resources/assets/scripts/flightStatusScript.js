@@ -1,3 +1,11 @@
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 var pilots = [];
 var pilotName = "";
 var pilotId = "";
@@ -15,12 +23,17 @@ $(document).ready(function () {
         showFlight();
     }
 
-    var url = host + "/api/pilots";
-    $.getJSON(url, function (data) {
-        data.forEach(function (pilot) {
-            pilots.push(pilot);
+    var pilotSocket = new WebSocket('ws://' + window.location.host + "/ws/pilots");
+
+    pilotSocket.onmessage = function (message) {
+        var pilotList = JSON.parse(message.data);
+        var newPilots = [];
+        pilotList.forEach(function (pilot) {
+            newPilots.push(pilot);
         });
-    });
+
+        pilots = newPilots;
+    };
 
     //When name box is typed into
     $("#name").on("input", function () {
@@ -92,8 +105,11 @@ $(document).ready(function () {
     }
 
     function loadFlightInfo() {
-        var url = host + "/api/flights";
-        $.getJSON(url, function (flightList) {
+        var flightSocket = new WebSocket('ws://' + window.location.host + "/ws/flights");
+
+        flightSocket.onmessage = function (message) {
+            var flightList = JSON.parse(message.data);
+
             var _iteratorNormalCompletion = true;
             var _didIteratorError = false;
             var _iteratorError = undefined;
@@ -157,7 +173,7 @@ $(document).ready(function () {
                     }
                 }
             }
-        });
+        };
     }
 
     $("#flightStarted").on("click", function () {
@@ -214,3 +230,121 @@ $(document).ready(function () {
         });
     });
 });
+
+var App = function (_React$Component) {
+    _inherits(App, _React$Component);
+
+    function App(props) {
+        _classCallCheck(this, App);
+
+        var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this, props));
+
+        _this.state = {
+            pilots: []
+        };
+
+        _this.loadData();
+        return _this;
+    }
+
+    _createClass(App, [{
+        key: "loadData",
+        value: function loadData() {
+            var _this2 = this;
+
+            var pilotSocket = new WebSocket('ws://' + window.location.host + "/ws/pilots");
+
+            pilotSocket.onmessage = function (message) {
+                var pilotList = JSON.parse(message.data);
+                var newPilots = [];
+                pilotList.forEach(function (pilot) {
+                    newPilots.push(pilot);
+                });
+
+                _this2.setState({
+                    pilots: newPilots
+                });
+            };
+        }
+    }, {
+        key: "render",
+        value: function render() {
+            return React.createElement(
+                "div",
+                { className: "middleDiv" },
+                React.createElement(
+                    "div",
+                    { id: "header" },
+                    React.createElement("img", { src: "images/logo.png", className: "logo" }),
+                    React.createElement(
+                        "h1",
+                        { id: "headerText" },
+                        "Flight Status"
+                    )
+                ),
+                React.createElement(
+                    "div",
+                    { id: "formFields" },
+                    React.createElement(
+                        "div",
+                        { id: "loginView", className: "hidden" },
+                        React.createElement(
+                            "form",
+                            { id: "loginForm", action: "#", autoComplete: "off", method: "POST" },
+                            React.createElement("input", { type: "text", name: "name", id: "name", placeholder: "Enter name" }),
+                            React.createElement("div", { id: "searchList" }),
+                            React.createElement("input", { type: "submit", id: "login", value: "Login" })
+                        )
+                    ),
+                    React.createElement(
+                        "div",
+                        { id: "flightView", className: "hidden" },
+                        React.createElement(
+                            "div",
+                            { id: "flightInfo" },
+                            React.createElement("p", { className: "infoItem", id: "pilotName" }),
+                            React.createElement("p", { className: "infoItem", id: "flightNumber" }),
+                            React.createElement("p", { className: "infoItem", id: "aircraftNumber" }),
+                            React.createElement("p", { className: "infoItem", id: "status" })
+                        ),
+                        React.createElement(
+                            "div",
+                            { id: "options" },
+                            React.createElement(
+                                "div",
+                                { className: "statusOption", id: "flightStarted" },
+                                React.createElement(
+                                    "p",
+                                    null,
+                                    "Starting Flight"
+                                )
+                            ),
+                            React.createElement(
+                                "div",
+                                { className: "statusOption", id: "flightFinished" },
+                                React.createElement(
+                                    "p",
+                                    null,
+                                    "Flight Finished"
+                                )
+                            ),
+                            React.createElement(
+                                "div",
+                                { className: "statusOption", id: "needsMaintenance" },
+                                React.createElement(
+                                    "p",
+                                    null,
+                                    "Needs maintenance"
+                                )
+                            )
+                        )
+                    )
+                )
+            );
+        }
+    }]);
+
+    return App;
+}(React.Component);
+
+ReactDOM.render(React.createElement(App, null), document.getElementById("root"));

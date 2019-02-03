@@ -17,7 +17,6 @@ import java.util.List;
  * @author Grayson Kuhns
  */
 @Singleton
-@RestController
 public class PilotDAO {
 
   // Dependencies
@@ -25,14 +24,13 @@ public class PilotDAO {
   private final PilotMapper pilotMapper;
 
   @Inject
-  PilotDAO(
+  public PilotDAO(
           final DataSource dataSource,
           final PilotMapper pilotMapper) {
     this.jdbcTemplate = new JdbcTemplate(dataSource);
     this.pilotMapper = pilotMapper;
   }
 
-  @RequestMapping(value = "/api/pilots")
   public List<Pilot> list() {
     return this.jdbcTemplate.query("SELECT * FROM pilot", pilotMapper);
   }
