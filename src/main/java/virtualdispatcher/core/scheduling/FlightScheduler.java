@@ -1,15 +1,12 @@
 package virtualdispatcher.core.scheduling;
 
-import java.util.Optional;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import virtualdispatcher.api.Aircraft;
-import virtualdispatcher.api.Flight;
-import virtualdispatcher.api.FlightFactory;
-import virtualdispatcher.api.Pilot;
-import virtualdispatcher.api.Zone;
+import virtualdispatcher.api.*;
 import virtualdispatcher.db.dao.AvailabilityDAO;
 import virtualdispatcher.db.dao.FlightDAO;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.util.Optional;
 
 @Singleton
 public class FlightScheduler {
@@ -19,23 +16,20 @@ public class FlightScheduler {
   private final PilotQueue pilotQueue;
   private final AircraftLocator aircraftLocator;
   private final ZoneLocator zoneLocator;
-  private final FlightFactory flightFactory;
   private final FlightDAO flightDAO;
 
   @Inject
-  FlightScheduler(
+  public FlightScheduler(
       final AvailabilityDAO availabilityDAO,
       final PilotQueue pilotQueue,
       final AircraftLocator aircraftLocator,
       final ZoneLocator zoneLocator,
-      final FlightFactory flightFactory,
       final FlightDAO flightDAO) {
 
     this.availabilityDAO = availabilityDAO;
     this.pilotQueue = pilotQueue;
     this.aircraftLocator = aircraftLocator;
     this.zoneLocator = zoneLocator;
-    this.flightFactory = flightFactory;
     this.flightDAO = flightDAO;
   }
 
@@ -68,7 +62,7 @@ public class FlightScheduler {
     }
 
     // We can schedule the flight
-    Flight flight = flightFactory.create(
+    Flight flight = new DefaultFlight(
         null,
         false,
         false,

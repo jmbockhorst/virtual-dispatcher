@@ -1,32 +1,29 @@
 package virtualdispatcher.db.dao;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.mapper.RowMappers;
+import com.google.inject.Inject;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.web.bind.annotation.*;
 import virtualdispatcher.api.Aircraft;
-import virtualdispatcher.api.Availability;
+import virtualdispatcher.api.DefaultAircraft;
+import virtualdispatcher.core.request.OperationalStatusUpdateRequest;
 import virtualdispatcher.db.mapper.AircraftMapper;
 
+import javax.inject.Singleton;
+import javax.sql.DataSource;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Singleton
+@RestController
 public class AircraftDAO {
 
-  // Dependencies
-  private final Jdbi jdbi;
+  private final JdbcTemplate jdbcTemplate;
+  private final AircraftMapper aircraftMapper;
 
   @Inject
-  AircraftDAO(
-      final Jdbi jdbi,
-      final AircraftMapper aircraftMapper) {
-
-    this.jdbi = jdbi;
-
-    // Register the mapper if it has not been already
-    if (!jdbi.getConfig().get(RowMappers.class).findFor(Aircraft.class).isPresent()) {
-      jdbi.registerRowMapper(aircraftMapper);
-    }
+  public AircraftDAO(final DataSource dataSource, final AircraftMapper aircraftMapper) {
+    this.jdbcTemplate = new JdbcTemplate(dataSource);
+    this.aircraftMapper = aircraftMapper;
   }
 
   public List<Aircraft> list() {
@@ -37,21 +34,15 @@ public class AircraftDAO {
    * Updates a {@link Aircraft}.
    *
    * @param id The pilot ID.
-   * @param operational The operational status
    */
-  public void updateOperationalStatus(final int id, final boolean operational) {
-    jdbi.useHandle(handle -> handle
-        .createUpdate("UPDATE aircraft SET operational = :operational WHERE id = :id")
-        .bind("operational", operational)
-        .bind("id", id)
-        .execute());
+
+  @RequestMapping(value = "/api/aircraft/{id}", method = RequestMethod.POST)
+  public void updateOperationalStatus(@PathVariable("id") int id, @RequestBody OperationalStatusUpdateRequest aircraft) {
+    this.jdbcTemplate.update("UPDATE aircraft SET operational = ? WHERE id = ?", aircraft.getOperational(), id);
   }
 
   public List<Aircraft> list(final Boolean operational) {
-    List<Aircraft> aircraft = jdbi.withHandle(handle -> handle
-      .createQuery("SELECT * FROM aircraft")
-      .mapTo(Aircraft.class)
-      .list());
+    List<Aircraft> aircraft = this.jdbcTemplate.query("SELECT * FROM aircraft", aircraftMapper);
 
     return aircraft
         .stream()

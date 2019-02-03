@@ -1,6 +1,7 @@
 package virtualdispatcher.api;
 
 import com.google.inject.assistedinject.Assisted;
+
 import javax.annotation.Nullable;
 
 /**

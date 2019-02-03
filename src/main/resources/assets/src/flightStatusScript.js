@@ -15,12 +15,17 @@ $(document).ready(function(){
         showFlight();
     }
 
-    var url = host + "/api/pilots"
-    $.getJSON(url, function(data) { 
-        data.forEach(function(pilot){
-            pilots.push(pilot);
+    var pilotSocket = new WebSocket('ws://' + window.location.host + "/ws/pilots");
+
+    pilotSocket.onmessage = (message) => {
+        var pilotList = JSON.parse(message.data);
+        const newPilots = [];
+        pilotList.forEach(function(pilot){
+            newPilots.push(pilot);
         });
-    });
+
+        pilots = newPilots;
+    }
 
     //When name box is typed into
     $("#name").on("input", function() {
@@ -94,8 +99,11 @@ $(document).ready(function(){
     }
 
     function loadFlightInfo(){
-        var url = host + "/api/flights"
-        $.getJSON(url, function(flightList) { 
+        var flightSocket = new WebSocket('ws://' + window.location.host + "/ws/flights");
+
+        flightSocket.onmessage = (message) => {
+            var flightList = JSON.parse(message.data);
+
             for(let flight of flightList){
                 if(flight.pilotId == pilotId){
                     currentFlight = flight;
@@ -139,7 +147,7 @@ $(document).ready(function(){
                     showFlight();
                 }
             }
-        });
+        }
     }
 
     $("#flightStarted").on("click", function(){
@@ -197,3 +205,76 @@ $(document).ready(function(){
     });
 });
 
+class App extends React.Component {
+    constructor(props){
+        super(props);
+        this.state = {
+            pilots: [],
+        }
+
+        this.loadData();
+    }
+
+    loadData(){
+        var pilotSocket = new WebSocket('ws://' + window.location.host + "/ws/pilots");
+
+        pilotSocket.onmessage = (message) => {
+            var pilotList = JSON.parse(message.data);
+            const newPilots = [];
+            pilotList.forEach(function(pilot){
+                newPilots.push(pilot);
+            });
+    
+            this.setState({
+                pilots: newPilots,
+            });
+        }
+    }
+
+    render(){
+        return (
+            <div className="middleDiv">
+                <div id="header">
+                    <img src="images/logo.png" className="logo"/>
+                    <h1 id="headerText">Flight Status</h1>
+                </div>
+
+                <div id="formFields">
+                    <div id="loginView" className="hidden">
+                        <form id="loginForm" action="#" autoComplete="off" method="POST">
+                            <input type="text" name="name" id="name" placeholder="Enter name"/>
+                            <div id="searchList"></div>
+                            <input type="submit" id = "login" value="Login"/>
+                        </form>
+                    </div>
+
+                    <div id="flightView" className="hidden">
+                        <div id="flightInfo">
+                            <p className="infoItem" id="pilotName"></p>
+                            <p className="infoItem" id="flightNumber"></p>
+                            <p className="infoItem" id="aircraftNumber"></p>
+                            <p className="infoItem" id="status"></p>
+                        </div>
+
+                        <div id="options">
+                            <div className="statusOption" id="flightStarted">
+                                <p>Starting Flight</p>
+                            </div>
+                            <div className="statusOption" id="flightFinished">
+                                <p>Flight Finished</p>
+                            </div>
+                            <div className="statusOption" id="needsMaintenance">
+                                <p>Needs maintenance</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+}
+
+ReactDOM.render(
+    <App />,
+    document.getElementById("root")
+);

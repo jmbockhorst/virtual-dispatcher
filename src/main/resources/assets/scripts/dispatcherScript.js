@@ -7,7 +7,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var host = "http://lvh.me:8080";
-// host = "";
+host = "";
 
 function getTimeDiff(oldTime) {
     var time = new Date().getTime();
@@ -119,7 +119,6 @@ var Plane = function (_React$Component3) {
                 },
                 url: host + '/api/aircraft/' + planeId,
                 data: JSON.stringify({
-
                     operational: event.target.checked ? false : true
                 })
             });
@@ -199,6 +198,8 @@ var PlaneList = function (_React$Component4) {
             planes: [],
             flights: []
         };
+
+        _this5.loadData();
         return _this5;
     }
 
@@ -207,8 +208,11 @@ var PlaneList = function (_React$Component4) {
         value: function loadData() {
             var _this6 = this;
 
-            var url = host + "/api/aircraft";
-            $.getJSON(url, function (planesList) {
+            var aircraftSocket = new WebSocket('ws://' + window.location.host + "/ws/aircraft");
+            var flightSocket = new WebSocket('ws://' + window.location.host + "/ws/flights");
+
+            aircraftSocket.onmessage = function (message) {
+                var planesList = JSON.parse(message.data);
                 var newPlanes = [];
                 planesList.forEach(function (plane) {
                     newPlanes.push(plane);
@@ -217,10 +221,10 @@ var PlaneList = function (_React$Component4) {
                 _this6.setState({
                     planes: newPlanes
                 });
-            });
+            };
 
-            url = host + "/api/flights?completed=false";
-            $.getJSON(url, function (flightList) {
+            flightSocket.onmessage = function (message) {
+                var flightList = JSON.parse(message.data);
                 var newFlights = [];
                 flightList.forEach(function (flight) {
                     //Put each flight in array spot associated with plane
@@ -230,37 +234,23 @@ var PlaneList = function (_React$Component4) {
                 _this6.setState({
                     flights: newFlights
                 });
-            });
-        }
-    }, {
-        key: "componentDidMount",
-        value: function componentDidMount() {
-            var _this7 = this;
-
-            this.timerID = setInterval(function () {
-                return _this7.loadData();
-            }, 1000);
-        }
-    }, {
-        key: "componentWillUnmount",
-        value: function componentWillUnmount() {
-            clearInterval(this.timerID);
+            };
         }
     }, {
         key: "render",
         value: function render() {
-            var _this8 = this;
+            var _this7 = this;
 
             var planesList = this.state.planes.map(function (p, i) {
-                var flight = _this8.state.flights[i];
+                var flight = _this7.state.flights[i];
                 var pilot = null;
                 var zone = null;
                 var started = null;
 
                 if (flight != null) {
-                    for (i = 0; i < _this8.props.pilots.length; i++) {
-                        if (_this8.props.pilots[i].id === flight.pilotId) {
-                            pilot = _this8.props.pilots[i].firstName + " " + _this8.props.pilots[i].lastName;
+                    for (i = 0; i < _this7.props.pilots.length; i++) {
+                        if (_this7.props.pilots[i].id === flight.pilotId) {
+                            pilot = _this7.props.pilots[i].firstName + " " + _this7.props.pilots[i].lastName;
                             break;
                         }
                     }
@@ -332,67 +322,68 @@ var WaitingList = function (_React$Component6) {
     function WaitingList(props) {
         _classCallCheck(this, WaitingList);
 
-        var _this10 = _possibleConstructorReturn(this, (WaitingList.__proto__ || Object.getPrototypeOf(WaitingList)).call(this, props));
+        var _this9 = _possibleConstructorReturn(this, (WaitingList.__proto__ || Object.getPrototypeOf(WaitingList)).call(this, props));
 
-        _this10.state = {
-            waitingPilots: []
+        _this9.state = {
+            waitingPilots: [],
+            currentTime: new Date().getTime()
         };
-        return _this10;
+
+        _this9.loadData();
+        return _this9;
     }
 
     _createClass(WaitingList, [{
         key: "loadData",
         value: function loadData() {
-            var _this11 = this;
+            var _this10 = this;
 
-            var url = host + "/api/availability";
-            $.getJSON(url, function (pilotList) {
+            var availabilitySocket = new WebSocket('ws://' + window.location.host + "/ws/availability");
+
+            availabilitySocket.onmessage = function (message) {
+                var availabilityList = JSON.parse(message.data);
                 var newAvailabilities = [];
 
                 //Sort by time
-                pilotList.sort(function (a, b) {
+                availabilityList.sort(function (a, b) {
                     return a.timeCreated - b.timeCreated;
                 });
 
-                pilotList.forEach(function (pilot) {
+                availabilityList.forEach(function (pilot) {
                     var newAvails = [];
                     newAvailabilities.push(pilot);
                 });
 
-                _this11.setState({
+                _this10.setState({
                     waitingPilots: newAvailabilities
                 });
-            });
+            };
         }
     }, {
         key: "componentDidMount",
         value: function componentDidMount() {
-            var _this12 = this;
-
-            this.timerID = setInterval(function () {
-                return _this12.loadData();
+            var that = this;
+            setInterval(function () {
+                that.setState({
+                    currentTime: new Date().getTime()
+                });
             }, 1000);
-        }
-    }, {
-        key: "componentWillUnmount",
-        value: function componentWillUnmount() {
-            clearInterval(this.timerID);
         }
     }, {
         key: "render",
         value: function render() {
-            var _this13 = this;
+            var _this11 = this;
 
             var waitingList = this.state.waitingPilots.map(function (p, i) {
                 var pilotName = "";
-                for (i = 0; i < _this13.props.pilots.length; i++) {
-                    if (_this13.props.pilots[i].id === p.pilotId) {
-                        pilotName = _this13.props.pilots[i].firstName + " " + _this13.props.pilots[i].lastName;
+                for (i = 0; i < _this11.props.pilots.length; i++) {
+                    if (_this11.props.pilots[i].id === p.pilotId) {
+                        pilotName = _this11.props.pilots[i].firstName + " " + _this11.props.pilots[i].lastName;
                         break;
                     }
                 }
 
-                return React.createElement(WaitingPilot, { key: p.pilotId, pilotName: pilotName, timeCreated: p.timeCreated });
+                return React.createElement(WaitingPilot, { key: p.pilotId, pilotName: pilotName, timeCreated: p.timeCreated, currentTime: _this11.state.currentTime });
             });
 
             return waitingList;
@@ -416,7 +407,7 @@ var ListHeader = function (_React$Component7) {
         value: function render() {
             return React.createElement(
                 "p",
-                { "class": "listHeader" },
+                { className: "listHeader" },
                 this.props.text
             );
         }
@@ -442,7 +433,7 @@ var MenuItem = function (_React$Component8) {
                 null,
                 React.createElement(
                     "td",
-                    { "class": "tipCellImg" },
+                    { className: "tipCellImg" },
                     React.createElement(InfoImage, { name: this.props.imageName })
                 ),
                 React.createElement(
@@ -474,49 +465,53 @@ var HelpMenu = function (_React$Component9) {
                 { id: "toolTipInitiator" },
                 React.createElement(
                     "table",
-                    { id: "toolTipTable", "class": "hidden" },
+                    { id: "toolTipTable", className: "hidden" },
                     React.createElement(
-                        "tr",
+                        "tbody",
                         null,
                         React.createElement(
-                            "th",
-                            { colspan: "2" },
-                            "Help"
-                        )
-                    ),
-                    React.createElement(MenuItem, { text: "Assigned Pilot", imageName: "pilot.png" }),
-                    React.createElement(MenuItem, { text: "Assigned Zone", imageName: "zone.png" }),
-                    React.createElement(MenuItem, { text: "In/Out Maintenance", imageName: "maintenance.png" }),
-                    React.createElement(MenuItem, { text: "Plane Status", imageName: "status.png" }),
-                    React.createElement(MenuItem, { text: "Time Waiting", imageName: "time.png" }),
-                    React.createElement(
-                        "tr",
-                        null,
-                        React.createElement("td", { "class": "tipCellImg", id: "tipColorGreen" }),
-                        React.createElement(
-                            "td",
+                            "tr",
                             null,
-                            "Avaliable"
-                        )
-                    ),
-                    React.createElement(
-                        "tr",
-                        null,
-                        React.createElement("td", { "class": "tipCellImg", id: "tipColorGold" }),
+                            React.createElement(
+                                "th",
+                                { colSpan: "2" },
+                                "Help"
+                            )
+                        ),
+                        React.createElement(MenuItem, { text: "Assigned Pilot", imageName: "pilot.png" }),
+                        React.createElement(MenuItem, { text: "Assigned Zone", imageName: "zone.png" }),
+                        React.createElement(MenuItem, { text: "In/Out Maintenance", imageName: "maintenance.png" }),
+                        React.createElement(MenuItem, { text: "Plane Status", imageName: "status.png" }),
+                        React.createElement(MenuItem, { text: "Time Waiting", imageName: "time.png" }),
                         React.createElement(
-                            "td",
+                            "tr",
                             null,
-                            "In Use"
-                        )
-                    ),
-                    React.createElement(
-                        "tr",
-                        null,
-                        React.createElement("td", { "class": "tipCellImg", id: "tipColorRed" }),
+                            React.createElement("td", { className: "tipCellImg", id: "tipColorGreen" }),
+                            React.createElement(
+                                "td",
+                                null,
+                                "Avaliable"
+                            )
+                        ),
                         React.createElement(
-                            "td",
+                            "tr",
                             null,
-                            "Under Maintenance"
+                            React.createElement("td", { className: "tipCellImg", id: "tipColorGold" }),
+                            React.createElement(
+                                "td",
+                                null,
+                                "In Use"
+                            )
+                        ),
+                        React.createElement(
+                            "tr",
+                            null,
+                            React.createElement("td", { className: "tipCellImg", id: "tipColorRed" }),
+                            React.createElement(
+                                "td",
+                                null,
+                                "Under Maintenance"
+                            )
                         )
                     )
                 ),
@@ -534,59 +529,49 @@ var App = function (_React$Component10) {
     function App(props) {
         _classCallCheck(this, App);
 
-        var _this17 = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this, props));
+        var _this15 = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this, props));
 
-        _this17.state = {
+        _this15.state = {
             pilots: []
         };
-        return _this17;
+
+        _this15.loadData();
+        return _this15;
     }
 
     _createClass(App, [{
         key: "loadData",
         value: function loadData() {
-            var _this18 = this;
+            var _this16 = this;
 
-            var url = host + "/api/pilots";
-            $.getJSON(url, function (pilotList) {
+            var pilotSocket = new WebSocket('ws://' + window.location.host + "/ws/pilots");
+
+            pilotSocket.onmessage = function (message) {
+                var pilotList = JSON.parse(message.data);
                 var newPilots = [];
                 pilotList.forEach(function (pilot) {
                     newPilots.push(pilot);
                 });
 
-                _this18.setState({
+                _this16.setState({
                     pilots: newPilots
                 });
-            });
-        }
-    }, {
-        key: "componentDidMount",
-        value: function componentDidMount() {
-            var _this19 = this;
-
-            this.timerID = setInterval(function () {
-                return _this19.loadData();
-            }, 1000);
-        }
-    }, {
-        key: "componentWillUnmount",
-        value: function componentWillUnmount() {
-            clearInterval(this.timerID);
+            };
         }
     }, {
         key: "render",
         value: function render() {
             return [React.createElement(
                 "div",
-                { id: "planeInfo", "class": "column" },
+                { id: "planeInfo", className: "column", key: 1 },
                 React.createElement(ListHeader, { text: "Planes" }),
                 React.createElement(PlaneList, { pilots: this.state.pilots })
             ), React.createElement(
                 "div",
-                { id: "waitingList", "class": "column" },
+                { id: "waitingList", className: "column", key: 2 },
                 React.createElement(ListHeader, { text: "Waiting List" }),
                 React.createElement(WaitingList, { pilots: this.state.pilots })
-            ), React.createElement(HelpMenu, null)];
+            ), React.createElement(HelpMenu, { key: 3 })];
         }
     }]);
 

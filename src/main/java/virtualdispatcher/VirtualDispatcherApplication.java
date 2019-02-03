@@ -1,41 +1,36 @@
 package virtualdispatcher;
 
-import com.google.inject.Guice;
-import io.dropwizard.Application;
-import io.dropwizard.assets.AssetsBundle;
-import io.dropwizard.setup.Bootstrap;
-import io.dropwizard.setup.Environment;
-import java.util.EnumSet;
-import javax.servlet.DispatcherType;
-import javax.servlet.FilterRegistration;
-import org.eclipse.jetty.servlets.CrossOriginFilter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import virtualdispatcher.core.scheduling.FlightScheduler;
 
-public class VirtualDispatcherApplication extends Application<VirtualDispatcherConfiguration> {
+import java.util.Timer;
+import java.util.TimerTask;
+
+@SpringBootApplication
+public class VirtualDispatcherApplication implements ApplicationRunner {
+    @Autowired
+    private FlightScheduler flightScheduler;
 
     public static void main(final String[] args) throws Exception {
-        new VirtualDispatcherApplication().run(args);
+        SpringApplication.run(VirtualDispatcherApplication.class, args);
     }
 
     @Override
-    public String getName() {
-        return "VirtualDispatcher";
-    }
+    public void run(ApplicationArguments args) throws Exception {
+        TimerTask schedulerTask = new TimerTask() {
+            @Override
+            public void run() {
+                flightScheduler.scheduleFlights();
+            }
+        };
 
-    @Override
-    public void initialize(final Bootstrap<VirtualDispatcherConfiguration> bootstrap) {
-        bootstrap.addBundle(new AssetsBundle("/assets", "/", "flightStatus.html"));
-    }
+        Timer timer = new Timer("Flight Scheduler Timer");
 
-    @Override
-    public void run(final VirtualDispatcherConfiguration configuration,
-                    final Environment environment) {
-        // Serve API resources at /api path
-        environment.jersey().setUrlPattern("/api/*");
-
-        // Run the application
-        Guice
-            .createInjector(new ApplicationModule(environment, configuration))
-            .getInstance(ApplicationRunner.class)
-            .run(environment, configuration);
+        long intervalMilli = 3000L;
+        timer.scheduleAtFixedRate(schedulerTask, intervalMilli, intervalMilli);
     }
 }
