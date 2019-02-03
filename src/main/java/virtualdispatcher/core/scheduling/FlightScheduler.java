@@ -16,23 +16,20 @@ public class FlightScheduler {
   private final PilotQueue pilotQueue;
   private final AircraftLocator aircraftLocator;
   private final ZoneLocator zoneLocator;
-  private final FlightFactory flightFactory;
   private final FlightDAO flightDAO;
 
   @Inject
-  FlightScheduler(
+  public FlightScheduler(
       final AvailabilityDAO availabilityDAO,
       final PilotQueue pilotQueue,
       final AircraftLocator aircraftLocator,
       final ZoneLocator zoneLocator,
-      final FlightFactory flightFactory,
       final FlightDAO flightDAO) {
 
     this.availabilityDAO = availabilityDAO;
     this.pilotQueue = pilotQueue;
     this.aircraftLocator = aircraftLocator;
     this.zoneLocator = zoneLocator;
-    this.flightFactory = flightFactory;
     this.flightDAO = flightDAO;
   }
 
@@ -65,7 +62,7 @@ public class FlightScheduler {
     }
 
     // We can schedule the flight
-    Flight flight = flightFactory.create(
+    Flight flight = new DefaultFlight(
         null,
         false,
         false,

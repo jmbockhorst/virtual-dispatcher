@@ -17,7 +17,7 @@ public class PilotQueue {
   private final AvailabilityDAO availabilityDAO;
 
   @Inject
-  PilotQueue(
+  public PilotQueue(
       final PilotDAO pilotDAO,
       final AvailabilityDAO availabilityDAO) {
 

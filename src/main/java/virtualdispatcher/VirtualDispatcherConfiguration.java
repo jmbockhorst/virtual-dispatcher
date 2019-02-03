@@ -9,6 +9,10 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
+import virtualdispatcher.core.scheduling.AircraftLocator;
+import virtualdispatcher.core.scheduling.FlightScheduler;
+import virtualdispatcher.core.scheduling.PilotQueue;
+import virtualdispatcher.core.scheduling.ZoneLocator;
 import virtualdispatcher.db.dao.AircraftDAO;
 import virtualdispatcher.db.dao.AvailabilityDAO;
 import virtualdispatcher.db.dao.FlightDAO;
@@ -72,6 +76,26 @@ public class VirtualDispatcherConfiguration {
     @ConditionalOnMissingBean
     public PilotDAO pilotDAO(){
         return new PilotDAO(dataSource(), pilotMapper());
+    }
+
+    @Bean
+    public PilotQueue pilotQueue(){
+        return new PilotQueue(pilotDAO(), availabilityDAO());
+    }
+
+    @Bean
+    public AircraftLocator aircraftLocator(){
+        return new AircraftLocator(flightDAO(), aircraftDAO());
+    }
+
+    @Bean
+    public ZoneLocator zoneLocator(){
+        return new ZoneLocator(dataSource());
+    }
+
+    @Bean
+    public FlightScheduler flightScheduler(){
+        return new FlightScheduler(availabilityDAO(), pilotQueue(), aircraftLocator(), zoneLocator(), flightDAO());
     }
 
     @Bean
