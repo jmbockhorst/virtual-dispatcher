@@ -45,7 +45,7 @@ public class FlightHandler extends TextWebSocketHandler {
 
     @Scheduled(fixedRate = 1000)
     public void fetch() throws IOException {
-        List<Flight> flights = flightDAO.list();
+        List<Flight> flights = flightDAO.list(null, false);
         String newData = objectMapper.writeValueAsString(flights);
 
         if(!newData.equals(this.dataString)){
