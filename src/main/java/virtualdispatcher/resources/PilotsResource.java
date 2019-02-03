@@ -1,17 +1,18 @@
 package virtualdispatcher.resources;
 
 import com.codahale.metrics.annotation.Timed;
-import java.util.List;
-import java.util.Optional;
+import virtualdispatcher.api.Pilot;
+import virtualdispatcher.core.scheduling.PilotQueue;
+import virtualdispatcher.db.dao.PilotDAO;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import virtualdispatcher.api.Pilot;
-import virtualdispatcher.core.scheduling.PilotQueue;
-import virtualdispatcher.db.dao.PilotDAO;
+import java.util.List;
+import java.util.Optional;
 
 @Singleton
 @Path("/pilots")

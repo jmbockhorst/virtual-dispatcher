@@ -2,11 +2,12 @@ package virtualdispatcher.db.dao;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import java.util.List;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.RowMappers;
 import virtualdispatcher.api.Zone;
 import virtualdispatcher.db.mapper.ZoneMapper;
+
+import java.util.List;
 
 /**
  * {@link Zone} Data access object.

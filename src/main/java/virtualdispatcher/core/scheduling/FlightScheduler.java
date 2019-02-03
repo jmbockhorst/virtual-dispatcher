@@ -1,15 +1,12 @@
 package virtualdispatcher.core.scheduling;
 
-import java.util.Optional;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import virtualdispatcher.api.Aircraft;
-import virtualdispatcher.api.Flight;
-import virtualdispatcher.api.FlightFactory;
-import virtualdispatcher.api.Pilot;
-import virtualdispatcher.api.Zone;
+import virtualdispatcher.api.*;
 import virtualdispatcher.db.dao.AvailabilityDAO;
 import virtualdispatcher.db.dao.FlightDAO;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.util.Optional;
 
 @Singleton
 public class FlightScheduler {

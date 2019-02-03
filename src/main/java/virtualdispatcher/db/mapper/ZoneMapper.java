@@ -1,13 +1,13 @@
 package virtualdispatcher.db.mapper;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.statement.StatementContext;
+import org.springframework.jdbc.core.RowMapper;
 import virtualdispatcher.api.Zone;
 import virtualdispatcher.api.ZoneFactory;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * {@link Zone} mapper.
@@ -34,7 +34,7 @@ public class ZoneMapper implements RowMapper<Zone> {
     }
 
     @Override
-    public Zone map(final ResultSet rs, final StatementContext ctx) throws SQLException {
+    public Zone mapRow(ResultSet rs, int rowNum) throws SQLException {
         return zoneFactory.create(
                 rs.getInt(KEY_ID));
     }

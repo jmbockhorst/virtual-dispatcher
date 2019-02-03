@@ -1,10 +1,6 @@
 package virtualdispatcher;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import javax.validation.Valid;
 import org.springframework.context.annotation.Configuration;
-
-import javax.validation.constraints.*;
 
 @Configuration
 public class VirtualDispatcherConfiguration {

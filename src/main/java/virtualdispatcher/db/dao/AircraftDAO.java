@@ -1,20 +1,17 @@
 package virtualdispatcher.db.dao;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.RowMappers;
 import virtualdispatcher.api.Aircraft;
-import virtualdispatcher.api.Availability;
 import virtualdispatcher.db.mapper.AircraftMapper;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Singleton
 public class AircraftDAO {
-
-  // Dependencies
-  private final Jdbi jdbi;
 
   @Inject
   AircraftDAO(

@@ -1,12 +1,13 @@
 package virtualdispatcher.db.dao;
 
 import com.google.inject.Inject;
-import java.util.List;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.RowMappers;
 import virtualdispatcher.api.Availability;
 import virtualdispatcher.api.Pilot;
 import virtualdispatcher.db.mapper.AvailabilityMapper;
+
+import java.util.List;
 
 /**
  * {@link Availability}

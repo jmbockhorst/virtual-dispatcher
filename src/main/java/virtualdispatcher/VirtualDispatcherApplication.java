@@ -1,6 +1,5 @@
 package virtualdispatcher;
 
-import com.google.inject.Guice;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

@@ -1,12 +1,13 @@
 package virtualdispatcher;
 
+import virtualdispatcher.core.scheduling.FlightScheduler;
+import virtualdispatcher.resources.Resource;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import virtualdispatcher.core.scheduling.FlightScheduler;
-import virtualdispatcher.resources.Resource;
 
 @Singleton
 public class ApplicationRunner {

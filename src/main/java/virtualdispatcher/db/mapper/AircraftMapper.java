@@ -1,13 +1,13 @@
 package virtualdispatcher.db.mapper;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.statement.StatementContext;
+import org.springframework.jdbc.core.RowMapper;
 import virtualdispatcher.api.Aircraft;
 import virtualdispatcher.api.AircraftFactory;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * {@link Aircraft} mapper.
@@ -35,7 +35,7 @@ public class AircraftMapper implements RowMapper<Aircraft> {
     }
 
     @Override
-    public Aircraft map(final ResultSet rs, final StatementContext ctx) throws SQLException {
+    public Aircraft mapRow(ResultSet rs, int rowNum) throws SQLException {
         return aircraftFactory.create(
                 rs.getInt(KEY_ID),
                 rs.getBoolean(KEY_OPERATIONAL));
