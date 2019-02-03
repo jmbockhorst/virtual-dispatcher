@@ -22,17 +22,6 @@ public class AvailabilityMapper implements RowMapper<Availability> {
     private static final String KEY_CREATED = "created";
     private static final String KEY_PILOT_ID = "pilot_id";
 
-    // Dependencies
-
-    /**
-     * Constructor.
-     *
-     */
-    @Inject
-    public AvailabilityMapper() {
-
-    }
-
     @Override
     public Availability mapRow(ResultSet rs, int rowNum) throws SQLException {
         return new DefaultAvailability(

@@ -19,12 +19,14 @@ public class ZoneDAO {
 
   // Dependencies
   private final JdbcTemplate jdbcTemplate;
+  private final ZoneMapper zoneMapper;
 
   @Inject
   ZoneDAO(
           final DataSource dataSource,
           final ZoneMapper zoneMapper) {
     this.jdbcTemplate = new JdbcTemplate(dataSource);
+    this.zoneMapper = zoneMapper;
   }
 
   public List<Zone> list() {

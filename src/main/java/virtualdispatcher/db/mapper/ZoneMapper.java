@@ -21,15 +21,6 @@ public class ZoneMapper implements RowMapper<Zone> {
     // Constants
     private static final String KEY_ID = "id";
 
-    /**
-     * Constructor.
-     *
-     */
-    @Inject
-    public ZoneMapper() {
-
-    }
-
     @Override
     public Zone mapRow(ResultSet rs, int rowNum) throws SQLException {
         return new DefaultZone(

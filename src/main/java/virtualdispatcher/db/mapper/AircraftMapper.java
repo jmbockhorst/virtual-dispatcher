@@ -22,15 +22,6 @@ public class AircraftMapper implements RowMapper<Aircraft> {
     private static final String KEY_ID = "id";
     private static final String KEY_OPERATIONAL = "operational";
 
-    /**
-     * Constructor.
-     *
-     */
-    @Inject
-    public AircraftMapper() {
-
-    }
-
     @Override
     public Aircraft mapRow(ResultSet rs, int rowNum) throws SQLException {
         return new DefaultAircraft(

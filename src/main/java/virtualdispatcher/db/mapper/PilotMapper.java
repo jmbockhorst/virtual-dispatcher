@@ -23,16 +23,6 @@ public class PilotMapper implements RowMapper<Pilot> {
     private static final String KEY_FIRSTNAME = "f_name";
     private static final String KEY_LASTNAME = "l_name";
 
-    // Dependencies
-
-    /**
-     * Constructor.
-     *
-     */
-    @Inject
-    public PilotMapper() {
-
-    }
 
     @Override
     public Pilot mapRow(ResultSet rs, int rowNum) throws SQLException {

@@ -1,5 +1,6 @@
 package virtualdispatcher.db.dao;
 
+import com.google.inject.Inject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,10 +19,12 @@ import java.util.stream.Collectors;
 public class AircraftDAO {
 
   private final JdbcTemplate jdbcTemplate;
+  private final AircraftMapper aircraftMapper;
 
-  @Autowired
-  AircraftDAO(final DataSource dataSource) {
+  @Inject
+  AircraftDAO(final DataSource dataSource, final AircraftMapper aircraftMapper) {
     this.jdbcTemplate = new JdbcTemplate(dataSource);
+    this.aircraftMapper = aircraftMapper;
   }
 
   public List<Aircraft> list() {
@@ -40,7 +43,7 @@ public class AircraftDAO {
   }
 
   public List<Aircraft> list(final Boolean operational) {
-    List<Aircraft> aircraft = this.jdbcTemplate.query("SELECT * FROM aircraft", new AircraftMapper());
+    List<Aircraft> aircraft = this.jdbcTemplate.query("SELECT * FROM aircraft", aircraftMapper);
 
     return aircraft
         .stream()

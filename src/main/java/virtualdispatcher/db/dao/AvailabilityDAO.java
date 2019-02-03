@@ -74,6 +74,6 @@ public class AvailabilityDAO {
      * @return The availabilities.
      */
     public List<Availability> list() {
-        return this.jdbcTemplate.query("SELECT * FROM availability", new AvailabilityMapper());
+        return this.jdbcTemplate.query("SELECT * FROM availability", availabilityMapper);
     }
 }

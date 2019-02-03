@@ -26,16 +26,6 @@ public class FlightMapper implements RowMapper<Flight> {
   private static final String KEY_AIRCRAFT_ID = "aircraft_id";
   private static final String KEY_ZONE_ID = "zone_id";
 
-  // Dependencies
-
-  /**
-   * Constructor.
-   *
-   */
-  @Inject
-  public FlightMapper() {
-
-  }
 
   @Override
   public Flight mapRow(ResultSet rs, int rowNum) throws SQLException {
