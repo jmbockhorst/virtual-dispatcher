@@ -1,6 +1,5 @@
 package virtualdispatcher.api;
 
-import org.jdbi.v3.core.argument.Argument;
 
 /**
  * Flight model.

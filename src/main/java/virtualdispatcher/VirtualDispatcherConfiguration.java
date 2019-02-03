@@ -1,25 +1,21 @@
 package virtualdispatcher;
 
-import io.dropwizard.Configuration;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.dropwizard.db.DataSourceFactory;
-import javax.validation.Valid;
-import org.hibernate.validator.constraints.*;
-import javax.validation.constraints.*;
+import org.springframework.context.annotation.Configuration;
 
-public class VirtualDispatcherConfiguration extends Configuration {
+@Configuration
+public class VirtualDispatcherConfiguration {
 
-  @Valid
-  @NotNull
-  private DataSourceFactory database = new DataSourceFactory();
-
-  @JsonProperty("database")
-  public void setDataSourceFactory(final DataSourceFactory factory) {
-    this.database = factory;
-  }
-
-  @JsonProperty("database")
-  public DataSourceFactory getDataSourceFactory() {
-    return database;
-  }
+//  @Valid
+//  @NotNull
+//  private DataSourceFactory database = new DataSourceFactory();
+//
+//  @JsonProperty("database")
+//  public void setDataSourceFactory(final DataSourceFactory factory) {
+//    this.database = factory;
+//  }
+//
+//  @JsonProperty("database")
+//  public DataSourceFactory getDataSourceFactory() {
+//    return database;
+//  }
 }

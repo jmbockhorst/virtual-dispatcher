@@ -1,13 +1,14 @@
 package virtualdispatcher.db.mapper;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.statement.StatementContext;
+import org.springframework.jdbc.core.RowMapper;
+import virtualdispatcher.api.DefaultFlight;
 import virtualdispatcher.api.Flight;
 import virtualdispatcher.api.FlightFactory;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * {@link Flight} mapper.
@@ -26,26 +27,24 @@ public class FlightMapper implements RowMapper<Flight> {
   private static final String KEY_ZONE_ID = "zone_id";
 
   // Dependencies
-  private final FlightFactory flightFactory;
 
   /**
    * Constructor.
    *
-   * @param flightFactory The {@link FlightFactory}.
    */
   @Inject
-  FlightMapper(final FlightFactory flightFactory) {
-    this.flightFactory = flightFactory;
+  public FlightMapper() {
+
   }
 
   @Override
-  public Flight map(final ResultSet rs, final StatementContext ctx) throws SQLException {
-    return flightFactory.create(
-        rs.getInt(KEY_ID),
-        rs.getBoolean(KEY_COMPLETED),
-        rs.getBoolean(KEY_STARTED),
-        rs.getInt(KEY_PILOT_ID),
-        rs.getInt(KEY_AIRCRAFT_ID),
-        rs.getInt(KEY_ZONE_ID));
+  public Flight mapRow(ResultSet rs, int rowNum) throws SQLException {
+    return new DefaultFlight(
+            rs.getInt(KEY_ID),
+            rs.getBoolean(KEY_COMPLETED),
+            rs.getBoolean(KEY_STARTED),
+            rs.getInt(KEY_PILOT_ID),
+            rs.getInt(KEY_AIRCRAFT_ID),
+            rs.getInt(KEY_ZONE_ID));
   }
 }

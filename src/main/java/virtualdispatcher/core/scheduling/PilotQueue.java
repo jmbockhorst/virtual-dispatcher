@@ -2,11 +2,12 @@ package virtualdispatcher.core.scheduling;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import java.util.List;
-import java.util.Optional;
 import virtualdispatcher.api.Pilot;
 import virtualdispatcher.db.dao.AvailabilityDAO;
 import virtualdispatcher.db.dao.PilotDAO;
+
+import java.util.List;
+import java.util.Optional;
 
 @Singleton
 public class PilotQueue {

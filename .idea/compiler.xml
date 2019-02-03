@@ -10,7 +10,13 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="virtual-dispatcher" target="1.8" />
       <module name="virtual-dispatcher (1)" target="1.8" />
     </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="virtual-dispatcher" options="-parameters" />
+    </option>
   </component>
 </project>
