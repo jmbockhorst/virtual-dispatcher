@@ -1,13 +1,11 @@
 package virtualdispatcher;
 
-import io.dropwizard.setup.Environment;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import virtualdispatcher.core.scheduling.FlightScheduler;
-import virtualdispatcher.core.scheduling.ZoneLocator;
 import virtualdispatcher.resources.Resource;
 
 @Singleton
@@ -32,15 +30,13 @@ public class ApplicationRunner {
   /**
    * Run the application.
    *
-   * @param environment The {@link Environment}.
    * @param configuration The {@link VirtualDispatcherConfiguration}.
    */
   public void run(
-      final Environment environment,
       final VirtualDispatcherConfiguration configuration) {
 
     // Register resources
-    resources.forEach(resource -> environment.jersey().register(resource));
+    //resources.forEach(resource -> environment.jersey().register(resource));
 
     startFlightScheduler();
   }

@@ -2,10 +2,7 @@ package virtualdispatcher.api;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import javax.annotation.Nullable;
-import org.jdbi.v3.core.statement.StatementContext;
 
 /**
  * Default {@link Flight} implementation.
