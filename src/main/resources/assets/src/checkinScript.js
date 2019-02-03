@@ -1,14 +1,17 @@
 var pilots = [];
 
-var host = "";
-
 $(document).ready(function(){
-    var url = host + "/api/pilots"
-    $.getJSON(url, function(data) { 
-        data.forEach(function(pilot){
-            pilots.push(pilot);
+    var pilotSocket = new WebSocket('ws://' + window.location.host + "/api/pilots");
+
+    pilotSocket.onmessage = (message) => {
+        var pilotList = JSON.parse(message.data);
+        const newPilots = [];
+        pilotList.forEach(function(pilot){
+            newPilots.push(pilot);
         });
-    });
+
+        pilots = newPilots;
+    }
 
     //When name box is typed into
     $("#name").on("input", function() {
@@ -71,7 +74,7 @@ $(document).ready(function(){
                     'Accept': 'application/json',
                     'Content-Type': 'application/json' 
                 },
-                url: host + '/api/availability',
+                url: '/api/availability',
                 data: JSON.stringify({
                     pilotId: pilot_id
                 }),
@@ -107,7 +110,7 @@ $(document).ready(function(){
                     'Accept': 'application/json',
                     'Content-Type': 'application/json' 
                 },
-                url: host + '/api/availability',
+                url: '/api/availability',
                 data: JSON.stringify({
                     pilotId: pilot_id
                 }),
@@ -142,10 +145,13 @@ $(document).ready(function(){
 });
 
 function setAction(id){
-    var url = host + "/api/availability"
-    $.getJSON(url, function(availablilty) {
+    var availabilitySocket = new WebSocket('ws://' + window.location.host + "/ws/availability");
+
+    availabilitySocket.onmessage = (message) => {
+        var availabilityList = JSON.parse(message.data);
+
         var action = "checkin";
-        for(let pilot of availablilty){
+        for(let pilot of availabilityList){
             if(pilot.pilotId == id){
                 action = "checkout";
             }
@@ -160,5 +166,56 @@ function setAction(id){
         }
 
         $("#checkin").attr("disabled", false);
-    }); 
+    }
 }
+
+class App extends React.Component {
+    constructor(props){
+        super(props);
+        this.state = {
+            pilots: [],
+        }
+
+        this.loadData();
+    }
+
+    loadData(){
+        var pilotSocket = new WebSocket('ws://' + window.location.host + "/api/pilots");
+
+        pilotSocket.onmessage = (message) => {
+            var pilotList = JSON.parse(message.data);
+            const newPilots = [];
+            pilotList.forEach(function(pilot){
+                newPilots.push(pilot);
+            });
+    
+            this.setState({
+                pilots: newPilots,
+            });
+        }
+    }
+
+    render(){
+        return (
+            <div className="middleDiv">
+                <div id="header">
+                    <img src="images/logo.png" className="logo" />
+                    <h1 id="headerText">Check In/Out</h1>
+                </div>
+                <div id="formFields">
+                    <form action="#" method="POST" id="checkinForm" autoComplete="off">
+                        <input type="text" name="name" id="name" placeholder = "Enter name"/>
+                        <div id="searchList"></div>
+                        <input type="submit" id="checkin" name="checkin/out" value="Enter a valid name" disabled/>
+                    </form>
+                </div>
+                <div className="message"> </div>
+            </div>
+        );
+    }
+}
+
+ReactDOM.render(
+    <App />,
+    document.getElementById("root")
+);

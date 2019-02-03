@@ -1,6 +1,6 @@
 
 var host = "http://lvh.me:8080";
-// host = "";
+host = "";
 
 function getTimeDiff(oldTime){
     var time = new Date().getTime();
@@ -12,7 +12,7 @@ function getTimeDiff(oldTime){
     var secondsDiff = millsDiff / 1000;
     var minutesDiff = Math.floor(secondsDiff / 60) % 60;
     var hoursDiff = Math.floor(secondsDiff / 60 / 60);
-    
+
     if(hoursDiff == 0){
         timeDiff = minutesDiff + " minutes";
     } else {
@@ -73,7 +73,6 @@ class Plane extends React.Component {
             },
             url: host + '/api/aircraft/' + planeId,
             data: JSON.stringify({
-                
                 operational: (event.target.checked ? false : true),
             })
         });
@@ -145,11 +144,16 @@ class PlaneList extends React.Component {
             planes: [],
             flights: [],
         };
+
+        this.loadData();
     }
 
     loadData() {
-        var url = host + "/api/aircraft"; 
-        $.getJSON(url, (planesList) => {
+        var aircraftSocket = new WebSocket('ws://' + window.location.host + "/api/aircraft");
+        var flightSocket = new WebSocket('ws://' + window.location.host + "/api/flights");
+
+        aircraftSocket.onmessage = (message) => {
+            var planesList = JSON.parse(message.data);
             const newPlanes = [];
             planesList.forEach(function(plane){
                 newPlanes.push(plane);
@@ -158,10 +162,10 @@ class PlaneList extends React.Component {
             this.setState({
                 planes: newPlanes,
             });
-        });
+        }
 
-        url = host + "/api/flights?completed=false";
-        $.getJSON(url, (flightList) => {
+        flightSocket.onmessage = (message) => {
+            var flightList = JSON.parse(message.data);
             const newFlights = [];
             flightList.forEach(function(flight){
                 //Put each flight in array spot associated with plane
@@ -171,15 +175,7 @@ class PlaneList extends React.Component {
             this.setState({
                 flights: newFlights,
             });
-        });
-    }
-
-    componentDidMount() {
-        this.timerID = setInterval(() => this.loadData(), 1000);
-    }
-
-    componentWillUnmount() {
-        clearInterval(this.timerID);
+        }
     }
 
     render(){
@@ -235,20 +231,25 @@ class WaitingList extends React.Component {
         super(props);
         this.state = {
             waitingPilots: [],
+            currentTime: new Date().getTime(),
         };
+
+        this.loadData();
     }
 
     loadData() {
-        var url = host + "/api/availability"; 
-        $.getJSON(url, (pilotList) => {
+        var availabilitySocket = new WebSocket('ws://' + window.location.host + "/ws/availability");
+
+        availabilitySocket.onmessage = (message) => {
+            var availabilityList = JSON.parse(message.data);
             const newAvailabilities = [];
-            
+
             //Sort by time
-            pilotList.sort(function(a, b) {
+            availabilityList.sort(function(a, b) {
                 return a.timeCreated - b.timeCreated;
             });
 
-            pilotList.forEach(function(pilot){
+            availabilityList.forEach(function(pilot){
             const newAvails = [];
                 newAvailabilities.push(pilot);
             });
@@ -256,15 +257,16 @@ class WaitingList extends React.Component {
             this.setState({
                 waitingPilots: newAvailabilities,
             });
-        });
+        }
     }
 
     componentDidMount() {
-        this.timerID = setInterval(() => this.loadData(), 1000);
-    }
-
-    componentWillUnmount() {
-        clearInterval(this.timerID);
+        var that = this;
+        setInterval(function(){
+            that.setState({
+                currentTime: new Date().getTime(),
+            });
+        }, 1000);
     }
 
     render(){
@@ -277,7 +279,7 @@ class WaitingList extends React.Component {
                 }
             }
 
-            return <WaitingPilot key={p.pilotId} pilotName={pilotName} timeCreated={p.timeCreated}/>
+            return <WaitingPilot key={p.pilotId} pilotName={pilotName} timeCreated={p.timeCreated} currentTime={this.state.currentTime}/>
         });
 
         return waitingList;
@@ -286,7 +288,7 @@ class WaitingList extends React.Component {
 
 class ListHeader extends React.Component {
     render(){
-        return <p class="listHeader">{this.props.text}</p>
+        return <p className="listHeader">{this.props.text}</p>
     }
 }
 
@@ -295,7 +297,7 @@ class MenuItem extends React.Component {
     render(){
         return (
             <tr>
-                <td class="tipCellImg">
+                <td className="tipCellImg">
                     <InfoImage name={this.props.imageName}/>
                 </td>
                 <td>{this.props.text}</td>
@@ -308,27 +310,29 @@ class HelpMenu extends React.Component {
     render(){
         return (
             <div id="toolTipInitiator">
-                <table id="toolTipTable" class="hidden">
-                    <tr>
-                        <th colspan="2">Help</th>
-                    </tr>
-                    <MenuItem text="Assigned Pilot" imageName="pilot.png" />
-                    <MenuItem text="Assigned Zone" imageName="zone.png" />
-                    <MenuItem text="In/Out Maintenance" imageName="maintenance.png" />
-                    <MenuItem text="Plane Status" imageName="status.png" />
-                    <MenuItem text="Time Waiting" imageName="time.png" />
-                    <tr>
-                        <td class="tipCellImg" id="tipColorGreen"></td>
-                        <td>Avaliable</td>
-                    </tr>
-                    <tr>
-                        <td class="tipCellImg" id="tipColorGold"></td>
-                        <td>In Use</td>
-                    </tr>
-                    <tr>
-                        <td class="tipCellImg" id="tipColorRed"></td>
-                        <td>Under Maintenance</td>
-                    </tr>
+                <table id="toolTipTable" className="hidden">
+                    <tbody>
+                        <tr>
+                            <th colSpan="2">Help</th>
+                        </tr>
+                        <MenuItem text="Assigned Pilot" imageName="pilot.png" />
+                        <MenuItem text="Assigned Zone" imageName="zone.png" />
+                        <MenuItem text="In/Out Maintenance" imageName="maintenance.png" />
+                        <MenuItem text="Plane Status" imageName="status.png" />
+                        <MenuItem text="Time Waiting" imageName="time.png" />
+                        <tr>
+                            <td className="tipCellImg" id="tipColorGreen"></td>
+                            <td>Avaliable</td>
+                        </tr>
+                        <tr>
+                            <td className="tipCellImg" id="tipColorGold"></td>
+                            <td>In Use</td>
+                        </tr>
+                        <tr>
+                            <td className="tipCellImg" id="tipColorRed"></td>
+                            <td>Under Maintenance</td>
+                        </tr>
+                    </tbody>
                 </table>
                 <img id="toolTipImg" src="images/question.png"/>
             </div>
@@ -342,11 +346,15 @@ class App extends React.Component {
         this.state = {
             pilots: [],
         };
+
+        this.loadData();
     }
 
     loadData() {
-        var url = host + "/api/pilots";
-        $.getJSON(url, (pilotList) => {
+        var pilotSocket = new WebSocket('ws://' + window.location.host + "/api/pilots");
+
+        pilotSocket.onmessage = (message) => {
+            var pilotList = JSON.parse(message.data);
             const newPilots = [];
             pilotList.forEach(function(pilot){
                 newPilots.push(pilot);
@@ -355,31 +363,23 @@ class App extends React.Component {
             this.setState({
                 pilots: newPilots,
             });
-        });
-    }
-
-    componentDidMount() {
-        this.timerID = setInterval(() => this.loadData(), 1000);
-    }
-
-    componentWillUnmount() {
-        clearInterval(this.timerID);
+        }
     }
 
     render(){
         return (
             [
-            <div id="planeInfo" class="column">
+            <div id="planeInfo" className="column" key={1}>
                 <ListHeader text="Planes" />
                 <PlaneList pilots={this.state.pilots} />
             </div>
             ,
-            <div id="waitingList" class="column">
+            <div id="waitingList" className="column" key={2}>
                 <ListHeader text="Waiting List" />
                 <WaitingList pilots={this.state.pilots} />
             </div>
             ,
-            <HelpMenu />
+            <HelpMenu key={3}/>
             ]
         );
     }
