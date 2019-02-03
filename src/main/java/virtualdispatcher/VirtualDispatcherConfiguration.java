@@ -1,6 +1,6 @@
 package virtualdispatcher;
 
-import javafx.concurrent.Task;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
@@ -9,8 +9,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
-import virtualdispatcher.api.AvailabilityFactory;
-import virtualdispatcher.api.Pilot;
 import virtualdispatcher.db.dao.AircraftDAO;
 import virtualdispatcher.db.dao.AvailabilityDAO;
 import virtualdispatcher.db.dao.FlightDAO;
@@ -53,21 +51,25 @@ public class VirtualDispatcherConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public AircraftDAO aircraftDAO(){
         return new AircraftDAO(dataSource(), aircraftMapper());
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public AvailabilityDAO availabilityDAO(){
         return new AvailabilityDAO(dataSource(), availabilityMapper());
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public FlightDAO flightDAO(){
         return new FlightDAO(dataSource(), flightMapper());
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public PilotDAO pilotDAO(){
         return new PilotDAO(dataSource(), pilotMapper());
     }

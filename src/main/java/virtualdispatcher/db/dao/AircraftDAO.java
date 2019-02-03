@@ -1,13 +1,11 @@
 package virtualdispatcher.db.dao;
 
 import com.google.inject.Inject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 import virtualdispatcher.api.Aircraft;
+import virtualdispatcher.api.DefaultAircraft;
+import virtualdispatcher.core.request.OperationalStatusUpdateRequest;
 import virtualdispatcher.db.mapper.AircraftMapper;
 
 import javax.inject.Singleton;
@@ -16,6 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Singleton
+@RestController
 public class AircraftDAO {
 
   private final JdbcTemplate jdbcTemplate;
@@ -38,8 +37,8 @@ public class AircraftDAO {
    */
 
   @RequestMapping(value = "/api/aircraft/{id}", method = RequestMethod.POST)
-  public void updateOperationalStatus(@PathVariable("id") int id, @RequestBody Aircraft aircraft) {
-    this.jdbcTemplate.update("UPDATE aircraft SET operational = ? WHERE id = ?", aircraft.isOperational(), id);
+  public void updateOperationalStatus(@PathVariable("id") int id, @RequestBody OperationalStatusUpdateRequest aircraft) {
+    this.jdbcTemplate.update("UPDATE aircraft SET operational = ? WHERE id = ?", aircraft.getOperational(), id);
   }
 
   public List<Aircraft> list(final Boolean operational) {

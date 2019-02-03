@@ -2,8 +2,15 @@ package virtualdispatcher.db.dao;
 
 import com.google.inject.Inject;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 import virtualdispatcher.api.Availability;
+import virtualdispatcher.api.DefaultAvailability;
 import virtualdispatcher.api.Pilot;
+import virtualdispatcher.core.request.CreateAvailabilityRequest;
+import virtualdispatcher.core.request.DeleteAvailabilityRequest;
 import virtualdispatcher.db.mapper.AvailabilityMapper;
 
 import javax.sql.DataSource;
@@ -13,6 +20,8 @@ import java.util.List;
  * {@link Availability}
  */
 
+@RestController
+@RequestMapping(value = "/api/availability")
 public class AvailabilityDAO {
 
     // Dependencies
@@ -35,10 +44,10 @@ public class AvailabilityDAO {
     /**
      * Creates an {@link Availability}.
      *
-     * @param pilotId The pilot ID.
      */
-    public void create(final int pilotId) {
-        this.jdbcTemplate.update("INSERT INTO availability (pilot_id) VALUES (?)", pilotId);
+    @RequestMapping(method = RequestMethod.POST)
+    public void create(@RequestBody CreateAvailabilityRequest availability) {
+        this.jdbcTemplate.update("INSERT INTO availability (pilot_id) VALUES (?)", availability.getPilotId());
     }
 
     /**
@@ -55,7 +64,8 @@ public class AvailabilityDAO {
      *
      * @param availability The {@link Availability}.
      */
-    public void delete(final Availability availability) {
+    @RequestMapping(method = RequestMethod.DELETE)
+    public void delete(@RequestBody DeleteAvailabilityRequest availability) {
         delete(availability.getPilotId());
     }
 
