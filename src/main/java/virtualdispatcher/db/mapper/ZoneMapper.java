@@ -1,6 +1,7 @@
 package virtualdispatcher.db.mapper;
 
 import org.springframework.jdbc.core.RowMapper;
+import virtualdispatcher.api.DefaultZone;
 import virtualdispatcher.api.Zone;
 import virtualdispatcher.api.ZoneFactory;
 
@@ -20,22 +21,18 @@ public class ZoneMapper implements RowMapper<Zone> {
     // Constants
     private static final String KEY_ID = "id";
 
-    // Dependencies
-    private final ZoneFactory zoneFactory;
-
     /**
      * Constructor.
      *
-     * @param zoneFactory The {@link ZoneFactory}.
      */
     @Inject
-    ZoneMapper(final ZoneFactory zoneFactory) {
-        this.zoneFactory = zoneFactory;
+    public ZoneMapper() {
+
     }
 
     @Override
     public Zone mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return zoneFactory.create(
+        return new DefaultZone(
                 rs.getInt(KEY_ID));
     }
 }

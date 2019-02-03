@@ -2,11 +2,11 @@ package virtualdispatcher.db.dao;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.mapper.RowMappers;
+import org.springframework.jdbc.core.JdbcTemplate;
 import virtualdispatcher.api.Flight;
 import virtualdispatcher.db.mapper.FlightMapper;
 
+import javax.sql.DataSource;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,25 +17,18 @@ import java.util.stream.Collectors;
 public class FlightDAO {
 
   // Dependencies
-  private final Jdbi jdbi;
+  private final JdbcTemplate jdbcTemplate;
 
   /**
    * Constructor.
    *
-   * @param jdbi The database connector.
    * @param flightMapper The {@link FlightMapper}.
    */
   @Inject
   FlightDAO(
-      final Jdbi jdbi,
-      final FlightMapper flightMapper) {
-
-    this.jdbi = jdbi;
-
-    // Register the mapper if it has not been already
-    if (!jdbi.getConfig().get(RowMappers.class).findFor(Flight.class).isPresent()) {
-      jdbi.registerRowMapper(flightMapper);
-    }
+          final DataSource dataSource,
+          final FlightMapper flightMapper) {
+    this.jdbcTemplate = new JdbcTemplate(dataSource);
   }
 
   public List<Flight> list() {
@@ -48,52 +41,43 @@ public class FlightDAO {
    * @return The flights.
    */
   public List<Flight> list(final Boolean completed, final Boolean started) {
-    return jdbi.withHandle(handle -> handle
-        .createQuery("SELECT * FROM flights")
-        .mapTo(Flight.class)
-        .list()
+    return this.jdbcTemplate.query("SELECT * FROM flights", new FlightMapper())
         .stream()
         .filter(flight -> completed == null || flight.isCompleted() == completed)
         .filter(flight -> started == null || flight.isStarted() == started)
-        .collect(Collectors.toList()));
+        .collect(Collectors.toList());
   }
 
   public void changeStartedStatus(final int id, final boolean started) {
-    jdbi.useHandle(handle -> handle
-      .createUpdate(
+    this.jdbcTemplate.update(
           "UPDATE flights\n" +
-              "  SET started = :started\n" +
-              "WHERE id = :id"
-      )
-      .bind("id", id)
-      .bind("started", started)
-      .execute());
+              "  SET started = ?\n" +
+              "WHERE id = ?",
+            started,
+            id
+      );
   }
 
   public void changeCompletedStatus(final int id, final boolean completed) {
-    jdbi.useHandle(handle -> handle
-        .createUpdate(
+    this.jdbcTemplate.update(
             "UPDATE flights\n" +
-                "  SET completed = :completed\n" +
-                "WHERE id = :id"
-        )
-        .bind("id", id)
-        .bind("completed", completed)
-        .execute());
+                "  SET completed = ?\n" +
+                "WHERE id = ?",
+            completed,
+            id
+        );
   }
 
   public void create(final Flight flight) {
-    jdbi.useHandle(handle -> handle
-      .createUpdate(
+    this.jdbcTemplate.update(
           "INSERT\n" +
               "  INTO flights (completed, started, pilot_id, aircraft_id, zone_id)\n" +
-              "  VALUES (:completed, :started, :pilot_id, :aircraft_id, :zone_id)"
-      )
-      .bind("completed", flight.isCompleted())
-      .bind("started", flight.isStarted())
-      .bind("pilot_id", flight.getPilotId())
-      .bind("aircraft_id", flight.getAircraftId())
-      .bind("zone_id", flight.getZoneId())
-      .execute());
+              "  VALUES (?, ?, ?, ?, ?)",
+            flight.isCompleted(),
+            flight.isStarted(),
+            flight.getPilotId(),
+            flight.getAircraftId(),
+            flight.getZoneId()
+      );
   }
 }

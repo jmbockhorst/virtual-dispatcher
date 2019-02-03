@@ -3,6 +3,7 @@ package virtualdispatcher.db.mapper;
 import org.springframework.jdbc.core.RowMapper;
 import virtualdispatcher.api.Aircraft;
 import virtualdispatcher.api.AircraftFactory;
+import virtualdispatcher.api.DefaultAircraft;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -21,23 +22,20 @@ public class AircraftMapper implements RowMapper<Aircraft> {
     private static final String KEY_ID = "id";
     private static final String KEY_OPERATIONAL = "operational";
 
-    // Dependencies
-    private final AircraftFactory aircraftFactory;
-
     /**
      * Constructor.
      *
-     * @param aircraftFactory The {@link AircraftFactory}.
      */
     @Inject
-    AircraftMapper(final AircraftFactory aircraftFactory) {
-        this.aircraftFactory = aircraftFactory;
+    public AircraftMapper() {
+
     }
 
     @Override
     public Aircraft mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return aircraftFactory.create(
+        return new DefaultAircraft(
                 rs.getInt(KEY_ID),
-                rs.getBoolean(KEY_OPERATIONAL));
+                rs.getBoolean(KEY_OPERATIONAL)) {
+        };
     }
 }

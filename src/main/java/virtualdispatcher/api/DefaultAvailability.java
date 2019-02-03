@@ -14,7 +14,7 @@ public class DefaultAvailability implements Availability {
   private final Instant timeCreated;
 
   @Inject
-  DefaultAvailability(
+  public DefaultAvailability(
       @Assisted("pilotId") int pilotId,
       @Assisted("timeCreated") Instant timeCreated) {
 

@@ -31,7 +31,7 @@ public class DefaultFlight implements Flight {
    * @param zoneId The zone ID.
    */
   @Inject
-  DefaultFlight(
+  public DefaultFlight(
       @Assisted("id") @Nullable final Integer id,
       @Assisted("completed") final boolean completed,
       @Assisted("started") final boolean started,

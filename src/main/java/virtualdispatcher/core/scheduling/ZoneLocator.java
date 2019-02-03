@@ -1,6 +1,12 @@
 package virtualdispatcher.core.scheduling;
 
+import org.springframework.jdbc.core.JdbcTemplate;
+import virtualdispatcher.api.Zone;
+import virtualdispatcher.db.mapper.ZoneMapper;
+
 import javax.inject.Singleton;
+import javax.sql.DataSource;
+import java.util.Optional;
 
 @Singleton
 public class ZoneLocator {
@@ -26,27 +32,17 @@ public class ZoneLocator {
       "LIMIT\n" +
       "  1";
 
-//  // Dependencies
-//  private final Jdbi jdbi;
-//
-//  @Inject
-//  ZoneLocator(
-//      final Jdbi jdbi,
-//      final ZoneMapper zoneMapper) {
-//
-//    this.jdbi = jdbi;
-//
-//    // Register the mapper if it has not been already
-//    if (!jdbi.getConfig().get(RowMappers.class).findFor(Zone.class).isPresent()) {
-//      jdbi.registerRowMapper(zoneMapper);
-//    }
-//  }
-//
-//  public Optional<Zone> getAvailableZone() {
-//    //return the zone the aircraft is currently in
-//    return jdbi.withHandle(handle -> handle
-//        .createQuery(QUERY)
-//        .mapTo(Zone.class)
-//        .findFirst());
-//  }
+  // Dependencies
+  private final JdbcTemplate jdbcTemplate;
+
+  public ZoneLocator(final DataSource dataSource) {
+    this.jdbcTemplate = new JdbcTemplate(dataSource);
+  }
+
+  public Optional<Zone> getAvailableZone() {
+    //return the zone the aircraft is currently in
+    return this.jdbcTemplate.query(QUERY, new ZoneMapper())
+            .stream()
+            .findFirst();
+  }
 }

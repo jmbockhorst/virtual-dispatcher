@@ -1,6 +1,7 @@
 package virtualdispatcher.db.mapper;
 
 import org.springframework.jdbc.core.RowMapper;
+import virtualdispatcher.api.DefaultFlight;
 import virtualdispatcher.api.Flight;
 import virtualdispatcher.api.FlightFactory;
 
@@ -26,21 +27,19 @@ public class FlightMapper implements RowMapper<Flight> {
   private static final String KEY_ZONE_ID = "zone_id";
 
   // Dependencies
-  private final FlightFactory flightFactory;
 
   /**
    * Constructor.
    *
-   * @param flightFactory The {@link FlightFactory}.
    */
   @Inject
-  FlightMapper(final FlightFactory flightFactory) {
-    this.flightFactory = flightFactory;
+  public FlightMapper() {
+
   }
 
   @Override
   public Flight mapRow(ResultSet rs, int rowNum) throws SQLException {
-    return flightFactory.create(
+    return new DefaultFlight(
             rs.getInt(KEY_ID),
             rs.getBoolean(KEY_COMPLETED),
             rs.getBoolean(KEY_STARTED),
