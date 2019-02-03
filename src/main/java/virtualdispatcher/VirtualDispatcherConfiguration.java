@@ -1,21 +1,20 @@
 package virtualdispatcher;
 
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.jdbc.DataSourceBuilder;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+
+import javax.sql.DataSource;
 
 @Configuration
 public class VirtualDispatcherConfiguration {
 
-//  @Valid
-//  @NotNull
-//  private DataSourceFactory database = new DataSourceFactory();
-//
-//  @JsonProperty("database")
-//  public void setDataSourceFactory(final DataSourceFactory factory) {
-//    this.database = factory;
-//  }
-//
-//  @JsonProperty("database")
-//  public DataSourceFactory getDataSourceFactory() {
-//    return database;
-//  }
+    @Bean
+    @Primary
+    @ConfigurationProperties(prefix = "spring.datasource")
+    public DataSource dataSource(){
+        return DataSourceBuilder.create().build();
+    }
 }
