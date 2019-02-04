@@ -24,9 +24,7 @@ public class PilotDAO {
   private final PilotMapper pilotMapper;
 
   @Inject
-  public PilotDAO(
-          final DataSource dataSource,
-          final PilotMapper pilotMapper) {
+  public PilotDAO(final DataSource dataSource, final PilotMapper pilotMapper) {
     this.jdbcTemplate = new JdbcTemplate(dataSource);
     this.pilotMapper = pilotMapper;
   }

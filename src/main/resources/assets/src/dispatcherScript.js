@@ -169,7 +169,9 @@ class PlaneList extends React.Component {
             const newFlights = [];
             flightList.forEach(function(flight){
                 //Put each flight in array spot associated with plane
-                newFlights[flight.aircraftId - 1] = flight;
+                if(!flight.completed){
+                    newFlights[flight.aircraftId - 1] = flight;
+                }
             });
 
             this.setState({

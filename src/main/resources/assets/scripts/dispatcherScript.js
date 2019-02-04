@@ -228,7 +228,9 @@ var PlaneList = function (_React$Component4) {
                 var newFlights = [];
                 flightList.forEach(function (flight) {
                     //Put each flight in array spot associated with plane
-                    newFlights[flight.aircraftId - 1] = flight;
+                    if (!flight.completed) {
+                        newFlights[flight.aircraftId - 1] = flight;
+                    }
                 });
 
                 _this6.setState({

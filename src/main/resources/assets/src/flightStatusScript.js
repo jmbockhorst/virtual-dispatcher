@@ -1,20 +1,6 @@
-var pilots = [];
-var pilotName = "";
-var pilotId = "";
-var currentFlight;
-
 var host = "";
 
 $(document).ready(function(){
-    var loggedIn  = false;
-
-    //Show correct page based on login status
-    if(!loggedIn){
-        showLogin()
-    } else {
-        showFlight();
-    }
-
     var pilotSocket = new WebSocket('ws://' + window.location.host + "/ws/pilots");
 
     pilotSocket.onmessage = (message) => {
@@ -62,157 +48,32 @@ $(document).ready(function(){
         });
     });
 
-    //When checkin/out button is clicked
-    $("#loginForm").submit(function(event){
-        event.preventDefault();
-
-        //Get name and pilot_id
-        var name = $("#name").val();
-        var pilot_id = $("#name").attr("data-id");
-        $("#name").val("");
-
-        pilotName = name;
-        pilotId = pilot_id;
-        refreshStatus();
-    });
-
-    function showLogin(){
-        $("#loginView").addClass("visible");
-        $("#loginView").removeClass("hidden");
-        $("#flightView").addClass("hidden");
-        $("#flightView").removeClass("visible");
-    }
-
-    function refreshStatus(){
-        loadFlightInfo();
-
-        setInterval(function(){
-            loadFlightInfo();
-        }, 1000);
-    }
-    
-    function showFlight(){
-        $("#loginView").addClass("hidden");
-        $("#loginView").removeClass("visible");
-        $("#flightView").addClass("visible");
-        $("#flightView").removeClass("hidden");
-    }
-
-    function loadFlightInfo(){
-        var flightSocket = new WebSocket('ws://' + window.location.host + "/ws/flights");
-
-        flightSocket.onmessage = (message) => {
-            var flightList = JSON.parse(message.data);
-
-            for(let flight of flightList){
-                if(flight.pilotId == pilotId){
-                    currentFlight = flight;
-
-                    $("#flightNumber").html("Flight# " + flight.id);
-                    $("#aircraftNumber").html("Aircraft " + flight.aircraftId);
-                    $("#pilotName").html(pilotName);
-
-                    if(flight.completed){
-                        //Flight is completed
-                        $("#status").html("Flight Completed");
-
-                        $("#options").addClass("hidden");
-                        $("#options").removeClass("visible");
-                    } else {
-                        $("#options").addClass("visible");
-                        $("#options").removeClass("hidden");
-
-                        if(flight.started){
-                            //Flight is started but not completed
-                            $("#status").html("Flight in progress");
-
-                            $("#flightStarted").addClass("hidden");
-                            $("#flightStarted").removeClass("visible")
-
-                            $("#flightFinished").addClass("visible");
-                            $("#flightFinished").removeClass("hidden")
-
-                        } else {
-                            //Flight is not started
-                            $("#status").html("Flight not started");
-
-                            $("#flightStarted").addClass("visible");
-                            $("#flightStarted").removeClass("hidden")
-
-                            $("#flightFinished").addClass("hidden");
-                            $("#flightFinished").removeClass("visible");
-                        }
-                    }
-
-                    showFlight();
-                }
-            }
-        }
-    }
-
-    $("#flightStarted").on("click", function(){
-        $.ajax({
-            type: 'POST',
-            headers: { 
-                'Accept': 'application/json',
-                'Content-Type': 'application/json' 
-            },
-            url: host + '/api/flights/' + currentFlight.id,
-            data: JSON.stringify({
-                started: true
-            })
-        });
-    });
-
-    $("#flightFinished").on("click", function(){
-        $.ajax({
-            type: 'POST',
-            headers: { 
-                'Accept': 'application/json',
-                'Content-Type': 'application/json' 
-            },
-            url: host + '/api/flights/' + currentFlight.id,
-            data: JSON.stringify({
-                completed: true
-            })
-        });
-    });
-
     $("#needsMaintenance").on("click", function(){
-        $.ajax({
-            type: 'POST',
-            headers: { 
-                'Accept': 'application/json',
-                'Content-Type': 'application/json' 
-            },
-            url: host + '/api/aircraft/' + currentFlight.aircraftId,
-            data: JSON.stringify({
-                operational: false
-            })
-        });
-
-        $.ajax({
-            type: 'POST',
-            headers: { 
-                'Accept': 'application/json',
-                'Content-Type': 'application/json' 
-            },
-            url: host + '/api/flights/' + currentFlight.id,
-            data: JSON.stringify({
-                completed: true
-            })
-        });
+        
     });
 });
+
+function StatusOption(props){
+    return (
+        <div className="statusOption" id={props.id} onClick={props.onPress}>
+            <p>{props.name}</p>
+        </div>
+    );
+}
 
 class App extends React.Component {
     constructor(props){
         super(props);
         this.state = {
             pilots: [],
+            flight: {id: 0, aircraftId: 0, started: false, completed: false},
+            loggedIn: false,
+            pilotName: "",
+            pilotId: null,
         }
 
         this.loadData();
+        this.loadFlightInfo();
     }
 
     loadData(){
@@ -231,6 +92,96 @@ class App extends React.Component {
         }
     }
 
+    loadFlightInfo(){
+        flightSocket = new WebSocket('ws://' + window.location.host + "/ws/flights");
+
+        flightSocket.onmessage = (message) => {
+            var flightList = JSON.parse(message.data);
+
+            // Reverse for loop to get latest flight
+            for(let i = flightList.length - 1; i >= 0; i--){
+                if(flightList[i].pilotId == this.state.pilotId){
+                    this.setState({
+                        flight: flightList[i],
+                    });
+
+                    break;
+                }
+            }
+        }
+    }
+
+    loginHandler(e){
+        e.preventDefault();
+
+        //Get name and pilot_id
+        var name = $("#name").val();
+        var pilot_id = $("#name").attr("data-id");
+        $("#name").val("");
+
+        this.setState({
+            pilotName: name,
+            pilotId: pilot_id,
+            loggedIn: true,
+        });
+
+        this.loadFlightInfo();
+    }
+
+    startFlight(){
+        $.ajax({
+            type: 'POST',
+            headers: { 
+                'Accept': 'application/json',
+                'Content-Type': 'application/json' 
+            },
+            url: host + '/api/flights/' + this.state.flight.id,
+            data: JSON.stringify({
+                started: true
+            })
+        });
+    }
+
+    finishFlight(){
+        $.ajax({
+            type: 'POST',
+            headers: { 
+                'Accept': 'application/json',
+                'Content-Type': 'application/json' 
+            },
+            url: host + '/api/flights/' + this.state.flight.id,
+            data: JSON.stringify({
+                completed: true
+            })
+        });
+    }
+
+    needsMaintenance(){
+        $.ajax({
+            type: 'POST',
+            headers: { 
+                'Accept': 'application/json',
+                'Content-Type': 'application/json' 
+            },
+            url: host + '/api/aircraft/' + this.state.flight.aircraftId,
+            data: JSON.stringify({
+                operational: false
+            })
+        });
+
+        $.ajax({
+            type: 'POST',
+            headers: { 
+                'Accept': 'application/json',
+                'Content-Type': 'application/json' 
+            },
+            url: host + '/api/flights/' + this.state.flight.id,
+            data: JSON.stringify({
+                completed: true
+            })
+        });
+    }
+
     render(){
         return (
             <div className="middleDiv">
@@ -240,34 +191,55 @@ class App extends React.Component {
                 </div>
 
                 <div id="formFields">
-                    <div id="loginView" className="hidden">
-                        <form id="loginForm" action="#" autoComplete="off" method="POST">
-                            <input type="text" name="name" id="name" placeholder="Enter name"/>
-                            <div id="searchList"></div>
-                            <input type="submit" id = "login" value="Login"/>
-                        </form>
-                    </div>
-
-                    <div id="flightView" className="hidden">
-                        <div id="flightInfo">
-                            <p className="infoItem" id="pilotName"></p>
-                            <p className="infoItem" id="flightNumber"></p>
-                            <p className="infoItem" id="aircraftNumber"></p>
-                            <p className="infoItem" id="status"></p>
+                    {
+                        // Chose the login or flight view based on login status
+                        !this.state.loggedIn ?
+                        <div id="loginView">
+                            <form id="loginForm" action="#" autoComplete="off" method="POST" onSubmit={this.loginHandler.bind(this)}>
+                                <input type="text" name="name" id="name" placeholder="Enter name"/>
+                                <div id="searchList"></div>
+                                <input type="submit" id="login" value="Login"/>
+                            </form>
                         </div>
+                        :
+                        <div id="flightView">
+                            <div id="flightInfo">
+                                <p className="infoItem" id="pilotName">{this.state.pilotName}</p>
+                                <p className="infoItem" id="flightNumber">Flight# {this.state.flight.id}</p>
+                                <p className="infoItem" id="aircraftNumber">Aircraft {this.state.flight.aircraftId}</p>
+                                <p className="infoItem" id="status">
+                                    {
+                                        this.state.flight.completed ?
+                                        "Flight completed"
+                                        :
+                                        (
+                                            this.state.flight.started ?
+                                            "Flight in progress"
+                                            :
+                                            "Flight not started"
+                                        )
+                                    }
+                                </p>
+                            </div>
 
-                        <div id="options">
-                            <div className="statusOption" id="flightStarted">
-                                <p>Starting Flight</p>
-                            </div>
-                            <div className="statusOption" id="flightFinished">
-                                <p>Flight Finished</p>
-                            </div>
-                            <div className="statusOption" id="needsMaintenance">
-                                <p>Needs maintenance</p>
-                            </div>
+                            {
+                                // Show the options only if the flight is not completed
+                                !this.state.flight.completed &&
+                                <div id="options">
+                                    {
+                                        // Show the proper buton based on the flight status
+                                        !this.state.flight.started ?
+                                        <StatusOption id="flightStarted" name="Starting Flight" onPress={this.startFlight.bind(this)}/>
+                                        :
+                                        <StatusOption id="flightFinished" name="Flight Finished" onPress={this.finishFlight.bind(this)}/>
+                                    }
+
+                                    <StatusOption id="needsMaintenance" name="Needs Maintenance" onPress={this.needsMaintenance.bind(this)}/>
+                                </div>
+                            }
+                            
                         </div>
-                    </div>
+                    }
                 </div>
             </div>
         );

@@ -35,17 +35,17 @@ public class AircraftDAO {
    *
    * @param id The pilot ID.
    */
-
   @RequestMapping(value = "/api/aircraft/{id}", method = RequestMethod.POST)
-  public void updateOperationalStatus(@PathVariable("id") int id, @RequestBody OperationalStatusUpdateRequest aircraft) {
-    this.jdbcTemplate.update("UPDATE aircraft SET operational = ? WHERE id = ?", aircraft.getOperational(), id);
+  public void updateOperationalStatus(
+      @PathVariable("id") int id, @RequestBody OperationalStatusUpdateRequest aircraft) {
+    this.jdbcTemplate.update(
+        "UPDATE aircraft SET operational = ? WHERE id = ?", aircraft.getOperational(), id);
   }
 
   public List<Aircraft> list(final Boolean operational) {
     List<Aircraft> aircraft = this.jdbcTemplate.query("SELECT * FROM aircraft", aircraftMapper);
 
-    return aircraft
-        .stream()
+    return aircraft.stream()
         .filter(craft -> operational == null || craft.isOperational() == operational)
         .collect(Collectors.toList());
   }
