@@ -22,9 +22,7 @@ public class ZoneDAO {
   private final ZoneMapper zoneMapper;
 
   @Inject
-  ZoneDAO(
-          final DataSource dataSource,
-          final ZoneMapper zoneMapper) {
+  ZoneDAO(final DataSource dataSource, final ZoneMapper zoneMapper) {
     this.jdbcTemplate = new JdbcTemplate(dataSource);
     this.zoneMapper = zoneMapper;
   }
