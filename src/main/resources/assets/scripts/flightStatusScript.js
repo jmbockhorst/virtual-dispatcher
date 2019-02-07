@@ -176,10 +176,10 @@ var App = function (_React$Component2) {
             var id = 0;
             this.state.pilots.forEach(function (pilot) {
                 var fullName = pilot.firstName + " " + pilot.lastName;
-                console.log(fullName + " vs " + name);
                 if (fullName == name) {
                     found = true;
                     id = pilot.id;
+                    console.log(id);
                 }
             });
 
@@ -189,7 +189,7 @@ var App = function (_React$Component2) {
 
                 this.setState({
                     pilotName: name,
-                    pilodId: id,
+                    pilotId: id,
                     loggedIn: true
                 });
 

@@ -133,10 +133,10 @@ class App extends React.Component {
         var id = 0;
         this.state.pilots.forEach((pilot) => {
             const fullName = pilot.firstName + " " + pilot.lastName;
-            console.log(fullName + " vs " + name);
             if(fullName == name){
                 found = true;
                 id = pilot.id;
+                console.log(id);
             }
         });
 
@@ -146,7 +146,7 @@ class App extends React.Component {
 
             this.setState({
                 pilotName: name,
-                pilodId: id,
+                pilotId: id,
                 loggedIn: true,
             });
 
