@@ -8,55 +8,6 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 var host = "";
 
-$(document).ready(function () {
-    var pilotSocket = new WebSocket('ws://' + window.location.host + "/ws/pilots");
-
-    pilotSocket.onmessage = function (message) {
-        var pilotList = JSON.parse(message.data);
-        var newPilots = [];
-        pilotList.forEach(function (pilot) {
-            newPilots.push(pilot);
-        });
-
-        pilots = newPilots;
-    };
-
-    //When name box is typed into
-    $("#name").on("input", function () {
-        $("#searchList").empty();
-        var name = this.value;
-        if (name != "") {
-            pilots.forEach(function (pilot) {
-                //Check if full name is equal to searched
-                //Check if only part of searched name is found
-                var fullName = pilot.firstName + " " + pilot.lastName;
-                if (fullName.toLowerCase() == name.toLowerCase()) {
-                    $("#name").val(fullName);
-                    $("#name").attr("data-id", pilot.id);
-                } else if (pilot.firstName.startsWith(name) || pilot.firstName.toLowerCase().startsWith(name.toLowerCase()) || fullName.startsWith(name) || fullName.toLowerCase().startsWith(name.toLowerCase())) {
-                    $("#searchList").append("<div class='searchItem' data-id=" + pilot.id + ">" + pilot.firstName + " " + pilot.lastName + "</div>");
-                }
-            });
-
-            //Check last names at the end
-            pilots.forEach(function (pilot) {
-                if (pilot.lastName.startsWith(name) || pilot.lastName.toLowerCase().startsWith(name.toLowerCase())) {
-                    $("#searchList").append("<div class='searchItem' data-id=" + pilot.id + ">" + pilot.firstName + " " + pilot.lastName + "</div>");
-                }
-            });
-        }
-
-        $(".searchItem").on("click", function () {
-            $("#name").val($(this).html());
-            var id = $(this).attr("data-id");
-            $("#name").attr("data-id", id);
-            $("#searchList").empty();
-        });
-    });
-
-    $("#needsMaintenance").on("click", function () {});
-});
-
 function StatusOption(props) {
     return React.createElement(
         "div",
@@ -69,31 +20,112 @@ function StatusOption(props) {
     );
 }
 
-var App = function (_React$Component) {
-    _inherits(App, _React$Component);
+function SearchItem(props) {
+    return React.createElement(
+        "div",
+        { className: "searchItem", onClick: props.onPress },
+        props.firstName,
+        " ",
+        props.lastName
+    );
+}
+
+var SearchList = function (_React$Component) {
+    _inherits(SearchList, _React$Component);
+
+    function SearchList(props) {
+        _classCallCheck(this, SearchList);
+
+        var _this = _possibleConstructorReturn(this, (SearchList.__proto__ || Object.getPrototypeOf(SearchList)).call(this, props));
+
+        _this.state = {
+            found: false,
+            foundName: ""
+        };
+        return _this;
+    }
+
+    _createClass(SearchList, [{
+        key: "handleClick",
+        value: function handleClick(e) {
+            this.props.inputBox.current.value = e.target.innerHTML;
+
+            this.setState({
+                found: true,
+                foundName: e.target.innerHTML
+            });
+        }
+    }, {
+        key: "render",
+        value: function render() {
+            var name = this.props.searchInput;
+
+            var searchItems = [];
+
+            if (!this.state.found) {
+                var main = this;
+                if (name != "") {
+                    this.props.pilots.forEach(function (pilot) {
+                        //Check if full name is equal to searched
+                        //Check if only part of searched name is found
+                        var fullName = pilot.firstName + " " + pilot.lastName;
+                        if (fullName.toLowerCase() == name.toLowerCase()) {
+                            main.props.inputBox.current.value = fullName;
+                        } else if (pilot.firstName.startsWith(name) || pilot.firstName.toLowerCase().startsWith(name.toLowerCase()) || fullName.startsWith(name) || fullName.toLowerCase().startsWith(name.toLowerCase())) {
+                            searchItems.push(React.createElement(SearchItem, { key: pilot.id, firstName: pilot.firstName, lastName: pilot.lastName, onPress: main.handleClick.bind(main) }));
+                        }
+                    });
+
+                    //Check last names at the end
+                    this.props.pilots.forEach(function (pilot) {
+                        if (pilot.lastName.startsWith(name) || pilot.lastName.toLowerCase().startsWith(name.toLowerCase())) {
+                            searchItems.push(React.createElement(SearchItem, { key: pilot.id, firstName: pilot.firstName, lastName: pilot.lastName, onPress: main.handleClick.bind(main) }));
+                        }
+                    });
+                }
+            } else {
+                this.state.found = false;
+            }
+
+            return React.createElement(
+                "div",
+                { id: "searchList" },
+                searchItems
+            );
+        }
+    }]);
+
+    return SearchList;
+}(React.Component);
+
+var App = function (_React$Component2) {
+    _inherits(App, _React$Component2);
 
     function App(props) {
         _classCallCheck(this, App);
 
-        var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this, props));
+        var _this2 = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this, props));
 
-        _this.state = {
+        _this2.state = {
             pilots: [],
             flight: { id: 0, aircraftId: 0, started: false, completed: false },
             loggedIn: false,
             pilotName: "",
-            pilotId: null
+            pilotId: 0,
+            searchInput: ""
         };
 
-        _this.loadData();
-        _this.loadFlightInfo();
-        return _this;
+        _this2.inputBox = React.createRef();
+
+        _this2.loadData();
+        _this2.loadFlightInfo();
+        return _this2;
     }
 
     _createClass(App, [{
         key: "loadData",
         value: function loadData() {
-            var _this2 = this;
+            var _this3 = this;
 
             var pilotSocket = new WebSocket('ws://' + window.location.host + "/ws/pilots");
 
@@ -104,7 +136,7 @@ var App = function (_React$Component) {
                     newPilots.push(pilot);
                 });
 
-                _this2.setState({
+                _this3.setState({
                     pilots: newPilots
                 });
             };
@@ -112,7 +144,7 @@ var App = function (_React$Component) {
     }, {
         key: "loadFlightInfo",
         value: function loadFlightInfo() {
-            var _this3 = this;
+            var _this4 = this;
 
             flightSocket = new WebSocket('ws://' + window.location.host + "/ws/flights");
 
@@ -121,8 +153,8 @@ var App = function (_React$Component) {
 
                 // Reverse for loop to get latest flight
                 for (var i = flightList.length - 1; i >= 0; i--) {
-                    if (flightList[i].pilotId == _this3.state.pilotId) {
-                        _this3.setState({
+                    if (flightList[i].pilotId == _this4.state.pilotId) {
+                        _this4.setState({
                             flight: flightList[i]
                         });
 
@@ -136,18 +168,33 @@ var App = function (_React$Component) {
         value: function loginHandler(e) {
             e.preventDefault();
 
-            //Get name and pilot_id
-            var name = $("#name").val();
-            var pilot_id = $("#name").attr("data-id");
-            $("#name").val("");
+            // Get name and pilot_id
+            var name = this.inputBox.current.value;
 
-            this.setState({
-                pilotName: name,
-                pilotId: pilot_id,
-                loggedIn: true
+            // Check if pilot name is valid
+            var found = false;
+            var id = 0;
+            this.state.pilots.forEach(function (pilot) {
+                var fullName = pilot.firstName + " " + pilot.lastName;
+                console.log(fullName + " vs " + name);
+                if (fullName == name) {
+                    found = true;
+                    id = pilot.id;
+                }
             });
 
-            this.loadFlightInfo();
+            if (found) {
+                // Reset the input field
+                e.target.value = "";
+
+                this.setState({
+                    pilotName: name,
+                    pilodId: id,
+                    loggedIn: true
+                });
+
+                this.loadFlightInfo();
+            }
         }
     }, {
         key: "startFlight",
@@ -207,6 +254,13 @@ var App = function (_React$Component) {
             });
         }
     }, {
+        key: "searchInput",
+        value: function searchInput(e) {
+            this.setState({
+                searchInput: e.target.value
+            });
+        }
+    }, {
         key: "render",
         value: function render() {
             return React.createElement(
@@ -233,8 +287,8 @@ var App = function (_React$Component) {
                         React.createElement(
                             "form",
                             { id: "loginForm", action: "#", autoComplete: "off", method: "POST", onSubmit: this.loginHandler.bind(this) },
-                            React.createElement("input", { type: "text", name: "name", id: "name", placeholder: "Enter name" }),
-                            React.createElement("div", { id: "searchList" }),
+                            React.createElement("input", { ref: this.inputBox, type: "text", name: "name", id: "name", placeholder: "Enter name", onChange: this.searchInput.bind(this) }),
+                            React.createElement(SearchList, { searchInput: this.state.searchInput, pilots: this.state.pilots, inputBox: this.inputBox }),
                             React.createElement("input", { type: "submit", id: "login", value: "Login" })
                         )
                     ) : React.createElement(

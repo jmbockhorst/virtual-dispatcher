@@ -1,64 +1,72 @@
 var host = "";
 
-$(document).ready(function(){
-    var pilotSocket = new WebSocket('ws://' + window.location.host + "/ws/pilots");
-
-    pilotSocket.onmessage = (message) => {
-        var pilotList = JSON.parse(message.data);
-        const newPilots = [];
-        pilotList.forEach(function(pilot){
-            newPilots.push(pilot);
-        });
-
-        pilots = newPilots;
-    }
-
-    //When name box is typed into
-    $("#name").on("input", function() {
-        $("#searchList").empty();
-        var name = this.value;
-        if(name != ""){
-            pilots.forEach(function(pilot){
-                //Check if full name is equal to searched
-                //Check if only part of searched name is found
-                var fullName = pilot.firstName + " " + pilot.lastName;
-                if(fullName.toLowerCase() == name.toLowerCase()){
-                    $("#name").val(fullName);
-                    $("#name").attr("data-id", pilot.id);
-                } else if(pilot.firstName.startsWith(name) || pilot.firstName.toLowerCase().startsWith(name.toLowerCase()) || 
-                   fullName.startsWith(name) || fullName.toLowerCase().startsWith(name.toLowerCase())
-                ){
-                    $("#searchList").append("<div class='searchItem' data-id=" + pilot.id + ">" + pilot.firstName + " " + pilot.lastName + "</div>");
-                }
-            });
-
-            //Check last names at the end
-            pilots.forEach(function(pilot){
-                if(pilot.lastName.startsWith(name) || pilot.lastName.toLowerCase().startsWith(name.toLowerCase())){
-                    $("#searchList").append("<div class='searchItem' data-id=" + pilot.id + ">" + pilot.firstName + " " + pilot.lastName + "</div>");
-                }
-            });
-        }
-
-        $(".searchItem").on("click", function() {
-            $("#name").val($(this).html());
-            var id = $(this).attr("data-id");
-            $("#name").attr("data-id", id);
-            $("#searchList").empty();
-        });
-    });
-
-    $("#needsMaintenance").on("click", function(){
-        
-    });
-});
-
 function StatusOption(props){
     return (
         <div className="statusOption" id={props.id} onClick={props.onPress}>
             <p>{props.name}</p>
         </div>
     );
+}
+
+function SearchItem(props){
+    return (
+        <div className='searchItem' onClick={props.onPress}>{props.firstName} {props.lastName}</div>
+    );
+}
+
+class SearchList extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            found: false,
+            foundName: "",
+        }
+    }
+
+    handleClick(e){
+        this.props.inputBox.current.value = e.target.innerHTML;
+
+        this.setState({
+            found: true,
+            foundName: e.target.innerHTML,
+        })
+    }
+
+    render() {
+        const name = this.props.searchInput;
+
+        var searchItems = [];
+
+        if(!this.state.found){
+            const main = this;
+            if(name != ""){
+                this.props.pilots.forEach(function(pilot){
+                    //Check if full name is equal to searched
+                    //Check if only part of searched name is found
+                    var fullName = pilot.firstName + " " + pilot.lastName;
+                    if(fullName.toLowerCase() == name.toLowerCase()){
+                        main.props.inputBox.current.value = fullName;
+                    } else if(pilot.firstName.startsWith(name) || 
+                            pilot.firstName.toLowerCase().startsWith(name.toLowerCase()) || 
+                            fullName.startsWith(name) || 
+                            fullName.toLowerCase().startsWith(name.toLowerCase())){
+                        searchItems.push(<SearchItem key={pilot.id} firstName={pilot.firstName} lastName={pilot.lastName} onPress={main.handleClick.bind(main)}/>);
+                    }
+                });
+
+                //Check last names at the end
+                this.props.pilots.forEach(function(pilot){
+                    if(pilot.lastName.startsWith(name) || pilot.lastName.toLowerCase().startsWith(name.toLowerCase())){
+                        searchItems.push(<SearchItem key={pilot.id} firstName={pilot.firstName} lastName={pilot.lastName} onPress={main.handleClick.bind(main)}/>);
+                    }
+                });
+            }
+        } else {
+            this.state.found = false;
+        }
+
+        return <div id="searchList">{searchItems}</div>;
+    }
 }
 
 class App extends React.Component {
@@ -69,8 +77,11 @@ class App extends React.Component {
             flight: {id: 0, aircraftId: 0, started: false, completed: false},
             loggedIn: false,
             pilotName: "",
-            pilotId: null,
+            pilotId: 0,
+            searchInput: "",
         }
+
+        this.inputBox = React.createRef();
 
         this.loadData();
         this.loadFlightInfo();
@@ -114,18 +125,33 @@ class App extends React.Component {
     loginHandler(e){
         e.preventDefault();
 
-        //Get name and pilot_id
-        var name = $("#name").val();
-        var pilot_id = $("#name").attr("data-id");
-        $("#name").val("");
-
-        this.setState({
-            pilotName: name,
-            pilotId: pilot_id,
-            loggedIn: true,
+        // Get name and pilot_id
+        var name = this.inputBox.current.value;
+        
+        // Check if pilot name is valid
+        var found = false;
+        var id = 0;
+        this.state.pilots.forEach((pilot) => {
+            const fullName = pilot.firstName + " " + pilot.lastName;
+            console.log(fullName + " vs " + name);
+            if(fullName == name){
+                found = true;
+                id = pilot.id;
+            }
         });
 
-        this.loadFlightInfo();
+        if(found){
+            // Reset the input field
+            e.target.value = "";
+
+            this.setState({
+                pilotName: name,
+                pilodId: id,
+                loggedIn: true,
+            });
+
+            this.loadFlightInfo();
+        }
     }
 
     startFlight(){
@@ -182,6 +208,12 @@ class App extends React.Component {
         });
     }
 
+    searchInput(e){
+        this.setState({
+            searchInput: e.target.value,
+        });
+    }
+
     render(){
         return (
             <div className="middleDiv">
@@ -196,9 +228,11 @@ class App extends React.Component {
                         !this.state.loggedIn ?
                         <div id="loginView">
                             <form id="loginForm" action="#" autoComplete="off" method="POST" onSubmit={this.loginHandler.bind(this)}>
-                                <input type="text" name="name" id="name" placeholder="Enter name"/>
-                                <div id="searchList"></div>
-                                <input type="submit" id="login" value="Login"/>
+                                <input ref={this.inputBox} type="text" name="name" id="name" placeholder="Enter name" onChange={this.searchInput.bind(this)}/>
+                                
+                                <SearchList searchInput={this.state.searchInput} pilots={this.state.pilots} inputBox={this.inputBox}/>
+                            
+                               <input type="submit" id="login" value="Login"/>
                             </form>
                         </div>
                         :
@@ -221,7 +255,6 @@ class App extends React.Component {
                                     }
                                 </p>
                             </div>
-
                             {
                                 // Show the options only if the flight is not completed
                                 !this.state.flight.completed &&
@@ -237,7 +270,6 @@ class App extends React.Component {
                                     <StatusOption id="needsMaintenance" name="Needs Maintenance" onPress={this.needsMaintenance.bind(this)}/>
                                 </div>
                             }
-                            
                         </div>
                     }
                 </div>
