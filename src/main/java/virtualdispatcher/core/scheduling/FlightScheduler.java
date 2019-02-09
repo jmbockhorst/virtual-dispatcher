@@ -1,5 +1,7 @@
 package virtualdispatcher.core.scheduling;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import virtualdispatcher.api.*;
 import virtualdispatcher.db.dao.AvailabilityDAO;
 import virtualdispatcher.db.dao.FlightDAO;
@@ -9,6 +11,7 @@ import javax.inject.Singleton;
 import java.util.Optional;
 
 @Singleton
+@Component
 public class FlightScheduler {
 
   // Dependencies
@@ -18,7 +21,7 @@ public class FlightScheduler {
   private final ZoneLocator zoneLocator;
   private final FlightDAO flightDAO;
 
-  @Inject
+  @Autowired
   public FlightScheduler(
       final AvailabilityDAO availabilityDAO,
       final PilotQueue pilotQueue,

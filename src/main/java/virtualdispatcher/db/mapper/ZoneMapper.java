@@ -1,6 +1,7 @@
 package virtualdispatcher.db.mapper;
 
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Component;
 import virtualdispatcher.api.DefaultZone;
 import virtualdispatcher.api.Zone;
 import virtualdispatcher.api.ZoneFactory;
@@ -16,6 +17,7 @@ import java.sql.SQLException;
  * @author Grayson Kuhns
  */
 @Singleton
+@Component
 public class ZoneMapper implements RowMapper<Zone> {
 
     // Constants

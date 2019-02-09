@@ -2,6 +2,7 @@ package virtualdispatcher.db.dao;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import virtualdispatcher.api.Zone;
 import virtualdispatcher.db.mapper.ZoneMapper;
@@ -21,7 +22,7 @@ public class ZoneDAO {
   private final JdbcTemplate jdbcTemplate;
   private final ZoneMapper zoneMapper;
 
-  @Inject
+  @Autowired
   ZoneDAO(final DataSource dataSource, final ZoneMapper zoneMapper) {
     this.jdbcTemplate = new JdbcTemplate(dataSource);
     this.zoneMapper = zoneMapper;

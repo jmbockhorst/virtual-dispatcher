@@ -2,7 +2,9 @@ package virtualdispatcher.db.dao;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import virtualdispatcher.api.Pilot;
@@ -17,13 +19,14 @@ import java.util.List;
  * @author Grayson Kuhns
  */
 @Singleton
+@Component
 public class PilotDAO {
 
   // Dependencies
   private final JdbcTemplate jdbcTemplate;
   private final PilotMapper pilotMapper;
 
-  @Inject
+  @Autowired
   public PilotDAO(final DataSource dataSource, final PilotMapper pilotMapper) {
     this.jdbcTemplate = new JdbcTemplate(dataSource);
     this.pilotMapper = pilotMapper;

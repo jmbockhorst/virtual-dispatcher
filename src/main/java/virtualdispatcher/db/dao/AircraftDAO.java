@@ -1,6 +1,7 @@
 package virtualdispatcher.db.dao;
 
 import com.google.inject.Inject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
 import virtualdispatcher.api.Aircraft;
@@ -20,7 +21,7 @@ public class AircraftDAO {
   private final JdbcTemplate jdbcTemplate;
   private final AircraftMapper aircraftMapper;
 
-  @Inject
+  @Autowired
   public AircraftDAO(final DataSource dataSource, final AircraftMapper aircraftMapper) {
     this.jdbcTemplate = new JdbcTemplate(dataSource);
     this.aircraftMapper = aircraftMapper;

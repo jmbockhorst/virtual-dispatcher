@@ -1,6 +1,8 @@
 package virtualdispatcher.core.scheduling;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Component;
 import virtualdispatcher.api.Zone;
 import virtualdispatcher.db.mapper.ZoneMapper;
 
@@ -9,6 +11,7 @@ import javax.sql.DataSource;
 import java.util.Optional;
 
 @Singleton
+@Component
 public class ZoneLocator {
 
   // Constants
@@ -35,6 +38,7 @@ public class ZoneLocator {
   // Dependencies
   private final JdbcTemplate jdbcTemplate;
 
+  @Autowired
   public ZoneLocator(final DataSource dataSource) {
     this.jdbcTemplate = new JdbcTemplate(dataSource);
   }

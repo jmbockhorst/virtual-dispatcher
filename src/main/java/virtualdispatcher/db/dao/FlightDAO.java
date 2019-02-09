@@ -2,6 +2,7 @@ package virtualdispatcher.db.dao;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
 import virtualdispatcher.api.DefaultFlight;
@@ -26,7 +27,7 @@ public class FlightDAO {
    *
    * @param flightMapper The {@link FlightMapper}.
    */
-  @Inject
+  @Autowired
   public FlightDAO(final DataSource dataSource, final FlightMapper flightMapper) {
     this.jdbcTemplate = new JdbcTemplate(dataSource);
   }

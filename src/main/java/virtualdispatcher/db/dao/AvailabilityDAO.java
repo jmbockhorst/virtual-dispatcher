@@ -1,6 +1,7 @@
 package virtualdispatcher.db.dao;
 
 import com.google.inject.Inject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,7 +31,7 @@ public class AvailabilityDAO {
    *
    * @param availabilityMapper The {@link AvailabilityMapper}.
    */
-  @Inject
+  @Autowired
   public AvailabilityDAO(final DataSource dataSource, final AvailabilityMapper availabilityMapper) {
     this.jdbcTemplate = new JdbcTemplate(dataSource);
     this.availabilityMapper = availabilityMapper;

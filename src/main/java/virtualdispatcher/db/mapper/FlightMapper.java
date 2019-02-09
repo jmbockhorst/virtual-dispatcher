@@ -1,6 +1,7 @@
 package virtualdispatcher.db.mapper;
 
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Component;
 import virtualdispatcher.api.DefaultFlight;
 import virtualdispatcher.api.Flight;
 import virtualdispatcher.api.FlightFactory;
@@ -16,6 +17,7 @@ import java.sql.SQLException;
  * @author Grayson Kuhns
  */
 @Singleton
+@Component
 public class FlightMapper implements RowMapper<Flight> {
 
   // Constants
