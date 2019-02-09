@@ -44,6 +44,7 @@ include integration with existing aircraft scheduling and maintenance software c
 * Java 8
 * Maven
 * MariaDB
+* Node.js
 
 ## Usage
 
@@ -81,4 +82,11 @@ java -jar target/virtual-dispatcher-1.0.0.jar server config.yml
 
 # Interact with the application
 Open `http://localhost:8080` in your browser
+```
+
+### Front end development
+
+```
+# Start the webpack watcher to compile the source as you work
+npm run watch
 ```

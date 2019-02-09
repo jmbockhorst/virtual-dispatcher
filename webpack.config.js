@@ -4,15 +4,15 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
     entry: {
-        flightStatus: './src/flightStatusScript.js',
-        dispatcherView: './src/dispatcherScript.js',
-        checkin: './src/checkinScript.js',
-        waitingRoom: './src/waitingRoomScript.js'
+        flightStatus: './src/main/resources/assets/src/flightStatusScript.js',
+        dispatcherView: './src/main/resources/assets/src/dispatcherScript.js',
+        checkin: './src/main/resources/assets/src/checkinScript.js',
+        waitingRoom: './src/main/resources/assets/src/waitingRoomScript.js'
     },
     mode: 'development',
     output: {
         filename: '[name].bundle.js',
-        path: path.resolve(__dirname, 'dist')
+        path: path.resolve(__dirname, 'src/main/resources/assets/dist')
     },
     module: {
         rules: [
@@ -38,32 +38,32 @@ module.exports = {
         ]
     },
     plugins: [
-        new CleanWebpackPlugin(['dist']),
+        new CleanWebpackPlugin(['src/main/resources/assets/dist']),
         new HtmlWebpackPlugin({
             title: 'Virtual Dispatcher - Flight Status',
-            favicon: './src/images/icon.ico',
-            template: './src/index.html',
+            favicon: './src/main/resources/assets/src/images/icon.ico',
+            template: './src/main/resources/assets/src/index.html',
             chunks: ['flightStatus'],
             filename: 'flightStatus.html' //relative to root of the application
         }),
         new HtmlWebpackPlugin({
             title: 'Virtual Dispatcher - Dispatcher View',
-            favicon: './src/images/icon.ico',
-            template: './src/index.html',
+            favicon: './src/main/resources/assets/src/images/icon.ico',
+            template: './src/main/resources/assets/src/index.html',
             chunks: ['dispatcherView'],
             filename: 'dispatcherView.html' //relative to root of the application
         }),
         new HtmlWebpackPlugin({
             title: 'Virtual Dispatcher - Check In',
-            favicon: './src/images/icon.ico',
-            template: './src/index.html',
+            favicon: './src/main/resources/assets/src/images/icon.ico',
+            template: './src/main/resources/assets/src/index.html',
             chunks: ['checkin'],
             filename: 'checkin.html' //relative to root of the application
         }),
         new HtmlWebpackPlugin({
             title: 'Virtual Dispatcher - Waiting Room',
-            favicon: './src/images/icon.ico',
-            template: './src/index.html',
+            favicon: './src/main/resources/assets/src/images/icon.ico',
+            template: './src/main/resources/assets/src/index.html',
             chunks: ['waitingRoom'],
             filename: 'waitingRoom.html' //relative to root of the application
         })

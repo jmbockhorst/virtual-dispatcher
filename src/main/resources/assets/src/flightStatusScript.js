@@ -4,8 +4,6 @@ import './css/baseStyle.css';
 import './css/statusStyle.css';
 import logo from './images/logo.png';
 
-const host = "localhost:8080";
-
 function StatusOption(props){
     return (
         <div className="statusOption" id={props.id} onClick={props.onPress}>
