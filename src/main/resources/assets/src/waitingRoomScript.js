@@ -1,3 +1,9 @@
+import React from 'react';
+import ReactDOM from 'react-dom';
+import './css/baseStyle.css';
+import './css/waitingRoomStyle.css';
+import logo from './images/logo.png';
+
 var host = "";
 
 function ListItem(props){
@@ -47,9 +53,9 @@ class FlightList extends React.Component {
         });
 
         if(currentName != this.state.lastName){
-            $("#last").effect('highlight', {color: "rgb(150, 0, 0)"}, 1000);
+            //$("#last").effect('highlight', {color: "rgb(150, 0, 0)"}, 1000);
         }
-
+        
         this.state.lastname = currentName;
 
         return <div id="flightList">{flightList}</div>;
@@ -109,7 +115,7 @@ class App extends React.Component {
 
                 <FlightList flights={this.state.flights} pilots={this.state.pilots}/>
                 
-                <img src="images/logo.png" className="logo"/>
+                <img src={logo} className="logo"/>
             </div>
         );
     }

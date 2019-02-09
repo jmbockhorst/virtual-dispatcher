@@ -1,3 +1,9 @@
+import React from 'react';
+import ReactDOM from 'react-dom';
+import './css/baseStyle.css';
+import './css/checkinStyle.css';
+import logo from './images/logo.png';
+
 var pilots = [];
 
 $(document).ready(function(){
@@ -199,7 +205,7 @@ class App extends React.Component {
         return (
             <div className="middleDiv">
                 <div id="header">
-                    <img src="images/logo.png" className="logo" />
+                    <img src={logo} className="logo" />
                     <h1 id="headerText">Check In/Out</h1>
                 </div>
                 <div id="formFields">

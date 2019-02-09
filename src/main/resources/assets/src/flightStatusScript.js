@@ -1,4 +1,10 @@
-var host = "";
+import React from 'react';
+import ReactDOM from 'react-dom';
+import './css/baseStyle.css';
+import './css/statusStyle.css';
+import logo from './images/logo.png';
+
+const host = "localhost:8080";
 
 function StatusOption(props){
     return (
@@ -104,7 +110,7 @@ class App extends React.Component {
     }
 
     loadFlightInfo(){
-        flightSocket = new WebSocket('ws://' + window.location.host + "/ws/flights");
+        var flightSocket = new WebSocket('ws://' + window.location.host + "/ws/flights");
 
         flightSocket.onmessage = (message) => {
             var flightList = JSON.parse(message.data);
@@ -218,7 +224,7 @@ class App extends React.Component {
         return (
             <div className="middleDiv">
                 <div id="header">
-                    <img src="images/logo.png" className="logo"/>
+                    <img src={logo} className="logo"/>
                     <h1 id="headerText">Flight Status</h1>
                 </div>
 

@@ -1,3 +1,7 @@
+import React from 'react';
+import ReactDOM from 'react-dom';
+import './css/baseStyle.css';
+import './css/dispatcherStyle.css';
 
 var host = "http://lvh.me:8080";
 host = "";
