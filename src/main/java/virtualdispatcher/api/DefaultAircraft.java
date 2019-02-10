@@ -1,19 +1,12 @@
 package virtualdispatcher.api;
 
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-
 public class DefaultAircraft implements Aircraft {
 
     // properties
     private final int aircraftId;
     private boolean operational;
 
-    @Inject
-    public DefaultAircraft(
-        @Assisted("id") final int aircraftId,
-        @Assisted("operational") boolean operational){
-
+    public DefaultAircraft(final int aircraftId, boolean operational){
         this.aircraftId = aircraftId;
         this.operational = operational;
     }

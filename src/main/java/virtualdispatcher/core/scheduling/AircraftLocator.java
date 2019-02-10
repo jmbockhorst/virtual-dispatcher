@@ -1,7 +1,5 @@
 package virtualdispatcher.core.scheduling;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import virtualdispatcher.api.Aircraft;
@@ -13,7 +11,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Singleton
 @Component
 public class AircraftLocator {
 
@@ -22,7 +19,7 @@ public class AircraftLocator {
   private final AircraftDAO aircraftDAO;
 
   @Autowired
-  public AircraftLocator(
+  AircraftLocator(
       final FlightDAO flightDAO,
       final AircraftDAO aircraftDAO) {
 

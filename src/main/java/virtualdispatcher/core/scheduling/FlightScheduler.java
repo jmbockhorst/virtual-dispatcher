@@ -6,11 +6,8 @@ import virtualdispatcher.api.*;
 import virtualdispatcher.db.dao.AvailabilityDAO;
 import virtualdispatcher.db.dao.FlightDAO;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.Optional;
 
-@Singleton
 @Component
 public class FlightScheduler {
 
@@ -20,20 +17,23 @@ public class FlightScheduler {
   private final AircraftLocator aircraftLocator;
   private final ZoneLocator zoneLocator;
   private final FlightDAO flightDAO;
+  private final FlightFactory flightFactory;
 
   @Autowired
-  public FlightScheduler(
+  FlightScheduler(
       final AvailabilityDAO availabilityDAO,
       final PilotQueue pilotQueue,
       final AircraftLocator aircraftLocator,
       final ZoneLocator zoneLocator,
-      final FlightDAO flightDAO) {
+      final FlightDAO flightDAO,
+      final FlightFactory flightFactory) {
 
     this.availabilityDAO = availabilityDAO;
     this.pilotQueue = pilotQueue;
     this.aircraftLocator = aircraftLocator;
     this.zoneLocator = zoneLocator;
     this.flightDAO = flightDAO;
+    this.flightFactory = flightFactory;
   }
 
   public void scheduleFlights() {
@@ -65,7 +65,7 @@ public class FlightScheduler {
     }
 
     // We can schedule the flight
-    Flight flight = new DefaultFlight(
+    Flight flight = flightFactory.create(
         null,
         false,
         false,

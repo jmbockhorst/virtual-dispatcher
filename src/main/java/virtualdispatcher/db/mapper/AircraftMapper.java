@@ -1,13 +1,12 @@
 package virtualdispatcher.db.mapper;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 import virtualdispatcher.api.Aircraft;
 import virtualdispatcher.api.AircraftFactory;
 import virtualdispatcher.api.DefaultAircraft;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -16,7 +15,6 @@ import java.sql.SQLException;
  *
  * @author Grayson Kuhns
  */
-@Singleton
 @Component
 public class AircraftMapper implements RowMapper<Aircraft> {
 
@@ -24,11 +22,18 @@ public class AircraftMapper implements RowMapper<Aircraft> {
     private static final String KEY_ID = "id";
     private static final String KEY_OPERATIONAL = "operational";
 
+    // Dependencies
+    private final AircraftFactory aircraftFactory;
+
+    @Autowired
+    AircraftMapper(final AircraftFactory aircraftFactory){
+        this.aircraftFactory = aircraftFactory;
+    }
+
     @Override
     public Aircraft mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return new DefaultAircraft(
+        return aircraftFactory.create(
                 rs.getInt(KEY_ID),
-                rs.getBoolean(KEY_OPERATIONAL)) {
-        };
+                rs.getBoolean(KEY_OPERATIONAL));
     }
 }

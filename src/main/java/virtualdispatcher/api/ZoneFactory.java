@@ -1,7 +1,5 @@
 package virtualdispatcher.api;
 
-import com.google.inject.assistedinject.Assisted;
-
 /**
  * {@link Zone} factory.
  *
@@ -16,6 +14,6 @@ public interface ZoneFactory {
      *
      * @return The {@link Zone}.
      */
-    Zone create(@Assisted("id") int id);
+    Zone create(int id);
 
 }

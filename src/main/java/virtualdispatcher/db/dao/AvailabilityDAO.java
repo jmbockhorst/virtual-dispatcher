@@ -1,6 +1,5 @@
 package virtualdispatcher.db.dao;
 
-import com.google.inject.Inject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -8,13 +7,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import virtualdispatcher.api.Availability;
-import virtualdispatcher.api.DefaultAvailability;
 import virtualdispatcher.api.Pilot;
 import virtualdispatcher.core.request.CreateAvailabilityRequest;
 import virtualdispatcher.core.request.DeleteAvailabilityRequest;
 import virtualdispatcher.db.mapper.AvailabilityMapper;
 
-import javax.sql.DataSource;
 import java.util.List;
 
 /** {@link Availability} */
@@ -23,8 +20,8 @@ import java.util.List;
 public class AvailabilityDAO {
 
   // Dependencies
-  private final AvailabilityMapper availabilityMapper;
   private final JdbcTemplate jdbcTemplate;
+  private final AvailabilityMapper availabilityMapper;
 
   /**
    * Constructor.
@@ -32,8 +29,8 @@ public class AvailabilityDAO {
    * @param availabilityMapper The {@link AvailabilityMapper}.
    */
   @Autowired
-  public AvailabilityDAO(final DataSource dataSource, final AvailabilityMapper availabilityMapper) {
-    this.jdbcTemplate = new JdbcTemplate(dataSource);
+  AvailabilityDAO(final JdbcTemplate jdbcTemplate, final AvailabilityMapper availabilityMapper) {
+    this.jdbcTemplate = jdbcTemplate;
     this.availabilityMapper = availabilityMapper;
   }
 

@@ -37,20 +37,6 @@
                 <artifactId>mariadb-java-client</artifactId>
                 <version>2.3.0</version>
             </dependency>
-
-            <!-- https://mvnrepository.com/artifact/com.google.inject/guice -->
-            <dependency>
-                <groupId>com.google.inject</groupId>
-                <artifactId>guice</artifactId>
-                <version>4.2.1</version>
-            </dependency>
-
-            <!-- https://mvnrepository.com/artifact/com.google.inject.extensions/guice-assistedinject -->
-            <dependency>
-                <groupId>com.google.inject.extensions</groupId>
-                <artifactId>guice-assistedinject</artifactId>
-                <version>4.2.1</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -81,18 +67,6 @@
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>
             <artifactId>mariadb-java-client</artifactId>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/com.google.inject/guice -->
-        <dependency>
-            <groupId>com.google.inject</groupId>
-            <artifactId>guice</artifactId>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/com.google.inject.extensions/guice-assistedinject -->
-        <dependency>
-            <groupId>com.google.inject.extensions</groupId>
-            <artifactId>guice-assistedinject</artifactId>
         </dependency>
 
         <dependency>

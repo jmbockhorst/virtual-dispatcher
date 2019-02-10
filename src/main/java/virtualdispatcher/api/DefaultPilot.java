@@ -1,8 +1,5 @@
 package virtualdispatcher.api;
 
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-
 public class DefaultPilot implements Pilot {
 
     // properties
@@ -11,12 +8,7 @@ public class DefaultPilot implements Pilot {
     private final String lastName;
 
     // constructor
-    @Inject
-    public DefaultPilot(
-        @Assisted("id") final int id,
-        @Assisted("firstName") final String firstName,
-        @Assisted("lastName") final String lastName) {
-
+    public DefaultPilot(final int id, final String firstName, final String lastName) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;

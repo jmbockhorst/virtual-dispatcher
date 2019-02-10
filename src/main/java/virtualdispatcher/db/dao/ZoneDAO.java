@@ -1,13 +1,10 @@
 package virtualdispatcher.db.dao;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import virtualdispatcher.api.Zone;
 import virtualdispatcher.db.mapper.ZoneMapper;
 
-import javax.sql.DataSource;
 import java.util.List;
 
 /**
@@ -15,7 +12,6 @@ import java.util.List;
  *
  * @author Grayson Kuhns
  */
-@Singleton
 public class ZoneDAO {
 
   // Dependencies
@@ -23,12 +19,12 @@ public class ZoneDAO {
   private final ZoneMapper zoneMapper;
 
   @Autowired
-  ZoneDAO(final DataSource dataSource, final ZoneMapper zoneMapper) {
-    this.jdbcTemplate = new JdbcTemplate(dataSource);
+  ZoneDAO(final JdbcTemplate jdbcTemplate, final ZoneMapper zoneMapper) {
+    this.jdbcTemplate = jdbcTemplate;
     this.zoneMapper = zoneMapper;
   }
 
   public List<Zone> list() {
-    return this.jdbcTemplate.query("SELECT * FROM zones", new ZoneMapper());
+    return this.jdbcTemplate.query("SELECT * FROM zones", zoneMapper);
   }
 }

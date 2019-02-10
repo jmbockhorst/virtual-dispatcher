@@ -1,9 +1,5 @@
 package virtualdispatcher.api;
 
-import com.google.inject.assistedinject.Assisted;
-
-import javax.annotation.Nullable;
-
 /**
  * {@link Flight} factory.
  *
@@ -24,10 +20,10 @@ public interface FlightFactory {
    * @return The {@link Flight}.
    */
   Flight create(
-      @Assisted("id") @Nullable Integer id,
-      @Assisted("completed") boolean completed,
-      @Assisted("started") boolean started,
-      @Assisted("pilotId") int pilotId,
-      @Assisted("aircraftId") int aircraftId,
-      @Assisted("zoneId") int zoneId);
+      Integer id,
+      boolean completed,
+      boolean started,
+      int pilotId,
+      int aircraftId,
+      int zoneId);
 }

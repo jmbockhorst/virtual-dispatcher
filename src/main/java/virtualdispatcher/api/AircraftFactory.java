@@ -1,6 +1,5 @@
 package virtualdispatcher.api;
 
-import com.google.inject.assistedinject.Assisted;
 
 /**
  * {@link Aircraft} factory.
@@ -17,7 +16,5 @@ public interface AircraftFactory {
      *
      * @return The {@link Aircraft}.
      */
-    Aircraft create(
-            @Assisted("id") int id,
-            @Assisted("operational") boolean operational);
+    Aircraft create(int id, boolean operational);
 }

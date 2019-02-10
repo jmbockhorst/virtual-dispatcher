@@ -1,10 +1,5 @@
 package virtualdispatcher.api;
 
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-
-import javax.annotation.Nullable;
-
 /**
  * Default {@link Flight} implementation.
  *
@@ -30,14 +25,13 @@ public class DefaultFlight implements Flight {
    * @param aircraftId The aircraft associated with the flight.
    * @param zoneId The zone ID.
    */
-  @Inject
   public DefaultFlight(
-      @Assisted("id") @Nullable final Integer id,
-      @Assisted("completed") final boolean completed,
-      @Assisted("started") final boolean started,
-      @Assisted("pilotId") final int pilotId,
-      @Assisted("aircraftId") final int aircraftId,
-      @Assisted("zoneId") final int zoneId) {
+          final Integer id,
+          final boolean completed,
+          final boolean started,
+          final int pilotId,
+          final int aircraftId,
+          final int zoneId) {
 
     this.id = id;
     this.completed = completed;

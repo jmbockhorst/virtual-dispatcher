@@ -1,7 +1,5 @@
 package virtualdispatcher.core.scheduling;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import virtualdispatcher.api.Pilot;
@@ -11,7 +9,6 @@ import virtualdispatcher.db.dao.PilotDAO;
 import java.util.List;
 import java.util.Optional;
 
-@Singleton
 @Component
 public class PilotQueue {
 
@@ -20,7 +17,7 @@ public class PilotQueue {
   private final AvailabilityDAO availabilityDAO;
 
   @Autowired
-  public PilotQueue(
+  PilotQueue(
       final PilotDAO pilotDAO,
       final AvailabilityDAO availabilityDAO) {
 

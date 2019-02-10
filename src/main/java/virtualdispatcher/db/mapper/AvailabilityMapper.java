@@ -6,8 +6,6 @@ import virtualdispatcher.api.Availability;
 import virtualdispatcher.api.AvailabilityFactory;
 import virtualdispatcher.api.DefaultAvailability;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -16,7 +14,6 @@ import java.sql.SQLException;
  *
  * @author Grayson Kuhns
  */
-@Singleton
 @Component
 public class AvailabilityMapper implements RowMapper<Availability> {
 
@@ -24,9 +21,16 @@ public class AvailabilityMapper implements RowMapper<Availability> {
     private static final String KEY_CREATED = "created";
     private static final String KEY_PILOT_ID = "pilot_id";
 
+    // Dependencies
+    private final AvailabilityFactory availabilityFactory;
+
+    AvailabilityMapper(AvailabilityFactory availabilityFactory) {
+        this.availabilityFactory = availabilityFactory;
+    }
+
     @Override
     public Availability mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return new DefaultAvailability(
+        return availabilityFactory.create(
                 rs.getInt(KEY_PILOT_ID),
                 rs.getTimestamp(KEY_CREATED).toInstant());
     }

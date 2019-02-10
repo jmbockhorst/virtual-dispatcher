@@ -6,11 +6,9 @@ import org.springframework.stereotype.Component;
 import virtualdispatcher.api.Zone;
 import virtualdispatcher.db.mapper.ZoneMapper;
 
-import javax.inject.Singleton;
 import javax.sql.DataSource;
 import java.util.Optional;
 
-@Singleton
 @Component
 public class ZoneLocator {
 
@@ -37,15 +35,17 @@ public class ZoneLocator {
 
   // Dependencies
   private final JdbcTemplate jdbcTemplate;
+  private final ZoneMapper zoneMapper;
 
   @Autowired
-  public ZoneLocator(final DataSource dataSource) {
+  ZoneLocator(final DataSource dataSource, final ZoneMapper zoneMapper) {
     this.jdbcTemplate = new JdbcTemplate(dataSource);
+    this.zoneMapper = zoneMapper;
   }
 
   public Optional<Zone> getAvailableZone() {
     //return the zone the aircraft is currently in
-    return this.jdbcTemplate.query(QUERY, new ZoneMapper())
+    return this.jdbcTemplate.query(QUERY, zoneMapper)
             .stream()
             .findFirst();
   }

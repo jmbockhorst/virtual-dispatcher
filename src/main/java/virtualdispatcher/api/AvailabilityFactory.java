@@ -1,7 +1,5 @@
 package virtualdispatcher.api;
 
-import com.google.inject.assistedinject.Assisted;
-
 import java.time.Instant;
 
 /**
@@ -19,7 +17,5 @@ public interface AvailabilityFactory {
      *
      * @return The {@link Availability}.
      */
-    Availability create(
-            @Assisted("pilotId") int pilotId,
-            @Assisted("timeCreated") Instant timeCreated);
+    Availability create(int pilotId, Instant timeCreated);
 }

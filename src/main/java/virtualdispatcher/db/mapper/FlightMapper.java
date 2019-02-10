@@ -6,8 +6,6 @@ import virtualdispatcher.api.DefaultFlight;
 import virtualdispatcher.api.Flight;
 import virtualdispatcher.api.FlightFactory;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -16,7 +14,6 @@ import java.sql.SQLException;
  *
  * @author Grayson Kuhns
  */
-@Singleton
 @Component
 public class FlightMapper implements RowMapper<Flight> {
 
@@ -28,10 +25,16 @@ public class FlightMapper implements RowMapper<Flight> {
   private static final String KEY_AIRCRAFT_ID = "aircraft_id";
   private static final String KEY_ZONE_ID = "zone_id";
 
+  // Dependencies
+  private final FlightFactory flightFactory;
+
+  FlightMapper(FlightFactory flightFactory) {
+    this.flightFactory = flightFactory;
+  }
 
   @Override
   public Flight mapRow(ResultSet rs, int rowNum) throws SQLException {
-    return new DefaultFlight(
+    return flightFactory.create(
             rs.getInt(KEY_ID),
             rs.getBoolean(KEY_COMPLETED),
             rs.getBoolean(KEY_STARTED),

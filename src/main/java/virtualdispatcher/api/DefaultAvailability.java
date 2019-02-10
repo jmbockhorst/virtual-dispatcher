@@ -1,8 +1,6 @@
 package virtualdispatcher.api;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
 import virtualdispatcher.core.serialization.InstantSerializer;
 
 import java.time.Instant;
@@ -13,10 +11,7 @@ public class DefaultAvailability implements Availability {
   private final int pilotId;
   private final Instant timeCreated;
 
-  @Inject
-  public DefaultAvailability(
-      @Assisted("pilotId") int pilotId,
-      @Assisted("timeCreated") Instant timeCreated) {
+  public DefaultAvailability(int pilotId, Instant timeCreated) {
 
     this.pilotId = pilotId;
     this.timeCreated = timeCreated;

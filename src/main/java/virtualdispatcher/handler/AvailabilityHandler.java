@@ -7,9 +7,7 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
-import virtualdispatcher.api.Aircraft;
 import virtualdispatcher.api.Availability;
-import virtualdispatcher.db.dao.AircraftDAO;
 import virtualdispatcher.db.dao.AvailabilityDAO;
 
 import java.io.IOException;

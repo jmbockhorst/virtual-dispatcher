@@ -1,7 +1,5 @@
 package virtualdispatcher.api;
 
-import com.google.inject.assistedinject.Assisted;
-
 /**
  * {@link Pilot} factory.
  *
@@ -19,7 +17,7 @@ public interface PilotFactory {
      * @return The {@link Pilot}.
      */
     Pilot create(
-            @Assisted("id") int id,
-            @Assisted("firstName") String firstName,
-            @Assisted("lastName") String lastName);
+            int id,
+            String firstName,
+            String lastName);
 }

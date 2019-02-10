@@ -6,8 +6,6 @@ import virtualdispatcher.api.DefaultPilot;
 import virtualdispatcher.api.Pilot;
 import virtualdispatcher.api.PilotFactory;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -16,7 +14,6 @@ import java.sql.SQLException;
  *
  * @author Grayson Kuhns
  */
-@Singleton
 @Component
 public class PilotMapper implements RowMapper<Pilot> {
 
@@ -25,10 +22,16 @@ public class PilotMapper implements RowMapper<Pilot> {
     private static final String KEY_FIRSTNAME = "f_name";
     private static final String KEY_LASTNAME = "l_name";
 
+    // Dependencies
+    private final PilotFactory pilotFactory;
+
+    PilotMapper(PilotFactory pilotFactory) {
+        this.pilotFactory = pilotFactory;
+    }
 
     @Override
     public Pilot mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return new DefaultPilot(
+        return pilotFactory.create(
                 rs.getInt(KEY_ID),
                 rs.getString(KEY_FIRSTNAME),
                 rs.getString(KEY_LASTNAME));
