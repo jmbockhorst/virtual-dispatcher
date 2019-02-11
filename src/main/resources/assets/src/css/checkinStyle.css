@@ -65,3 +65,21 @@ input {
     background-color: var(--red-bg-hover);
     cursor: pointer;
 }
+
+.message-enter {
+    opacity: 0.01;
+}
+
+.message-enter.message-enter-active {
+    opacity: 1;
+    transition: opacity 100ms ease-in;
+}
+
+.message-exit {
+    opacity: 1;
+}
+
+.message-exit.message-exit-active {
+    opacity: 0.01;
+    transition: opacity 500ms ease-out;
+}

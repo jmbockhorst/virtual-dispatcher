@@ -1,6 +1,7 @@
 const path = require('path');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = {
     entry: {
@@ -67,5 +68,10 @@ module.exports = {
             chunks: ['waitingRoom'],
             filename: 'waitingRoom.html' //relative to root of the application
         })
-    ]
+    ],
+    optimization: {
+        minimizer: [new UglifyJsPlugin({
+            test: /\.(js|jsx)$/
+        })],
+    }
 };

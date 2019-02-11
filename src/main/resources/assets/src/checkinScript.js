@@ -1,192 +1,34 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import './css/baseStyle.css';
 import './css/checkinStyle.css';
 import logo from './images/logo.png';
-
-var pilots = [];
-
-$(document).ready(function(){
-    var pilotSocket = new WebSocket('ws://' + window.location.host + "/ws/pilots");
-
-    pilotSocket.onmessage = (message) => {
-        var pilotList = JSON.parse(message.data);
-        const newPilots = [];
-        pilotList.forEach(function(pilot){
-            newPilots.push(pilot);
-        });
-
-        pilots = newPilots;
-    }
-
-    //When name box is typed into
-    $("#name").on("input", function() {
-        $("#searchList").empty();
-        var name = this.value;
-        if(name != ""){
-            pilots.forEach(function(pilot){
-                //Check if full name is equal to searched
-                //Check if only part of searched name is found
-                var fullName = pilot.firstName + " " + pilot.lastName;
-                if(fullName.toLowerCase() == name.toLowerCase()){
-                    $("#name").val(fullName);
-                    $("#name").attr("data-id", pilot.id);
-
-                    //Set button if checking in or out
-                    setAction(pilot.id);
-                    
-                } else if(pilot.firstName.startsWith(name) || pilot.firstName.toLowerCase().startsWith(name.toLowerCase()) || 
-                   fullName.startsWith(name) || fullName.toLowerCase().startsWith(name.toLowerCase())
-                ){
-                    $("#searchList").append("<div class='searchItem' data-id=" + pilot.id + ">" + pilot.firstName + " " + pilot.lastName + "</div>");
-                }
-            });
-
-            //Check last names at the end
-            pilots.forEach(function(pilot){
-                if(pilot.lastName.startsWith(name) || pilot.lastName.toLowerCase().startsWith(name.toLowerCase())){
-                    $("#searchList").append("<div class='searchItem' data-id=" + pilot.id + ">" + pilot.firstName + " " + pilot.lastName + "</div>");
-                }
-            });
-        }
-
-        $(".searchItem").on("click", function() {
-            $("#name").val($(this).html());
-            var id = $(this).attr("data-id");
-            $("#name").attr("data-id", id);
-            $("#searchList").empty();
-
-            //Set button if checking in or out
-            setAction(id);
-        });
-    });
-
-    //When checkin/out button is clicked
-    $("#checkinForm").submit(function(event){
-        event.preventDefault();
-
-        //Get name and pilot_id
-        var name = $("#name").val();
-        var pilot_id = $("#name").attr("data-id");
-        $("#name").val("");
-
-        //Get checkin or checkout
-        var type = $("#checkin").attr("name");
-
-        if(type == "checkin"){
-            $.ajax({
-                type: 'POST',
-                headers: { 
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json' 
-                },
-                url: '/api/availability',
-                data: JSON.stringify({
-                    pilotId: pilot_id
-                }),
-                success:function(){
-                    var good = true;
-                    //Test if good message
-                    if(good){
-                        //Try to schedule flight
-                        $(".message").html("You have checked in successfully");
-                        $(".message").attr("id", "goodMessage");
-                    } else {
-                        $(".message").html("Your name was not found in the system");
-                        $(".message").attr("id", "badMessage");
-                    }
-                    //Check if plane is available
-                    //Create flight and give info if there is
-                    //If not, put on waiting list
-                    //Set message id for good or bad message
-
-                    //Fade out message after 3 seconds
-                    setTimeout(function(){
-                        $(".message").fadeOut("slow", function () {
-                            $(".message").html("");
-                            $(".message").fadeIn("fast");
-                        });
-                    }, 3000);
-                }
-            });
-        } else {
-            $.ajax({
-                type: 'DELETE',
-                headers: { 
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json' 
-                },
-                url: '/api/availability',
-                data: JSON.stringify({
-                    pilotId: pilot_id
-                }),
-                success:function(){
-                    var good = true;
-                    //Test if good message
-                    if(good){
-                        //Try to schedule flight
-                        $(".message").html("You have checked out successfully");
-                        $(".message").attr("id", "goodMessage");
-                    } else {
-                        $(".message").html("Your name was not found in the system");
-                        $(".message").attr("id", "badMessage");
-                    }
-
-                    //Fade out message after 10 seconds
-                    setTimeout(function(){
-                        $(".message").fadeOut("slow", function () {
-                            $(".message").html("");
-                            $(".message").fadeIn("fast");
-                        });
-                    }, 10000);
-                }
-            });
-        }
-
-        //Reset checkin/out button
-        $("#checkin").attr("name", "checkin/out");
-        $("#checkin").val("Enter a valid name");
-        $("#checkin").attr("disabled", true);
-    });
-});
-
-function setAction(id){
-    var availabilitySocket = new WebSocket('ws://' + window.location.host + "/ws/availability");
-
-    availabilitySocket.onmessage = (message) => {
-        var availabilityList = JSON.parse(message.data);
-
-        var action = "checkin";
-        for(let pilot of availabilityList){
-            if(pilot.pilotId == id){
-                action = "checkout";
-            }
-        }
-
-        $("#checkin").attr("name", action);
-
-        if(action == "checkin"){
-            $("#checkin").val("Check In");
-        } else {
-            $("#checkin").val("Check Out");
-        }
-
-        $("#checkin").attr("disabled", false);
-    }
-}
+import SearchList from './searchList.js';
 
 class App extends React.Component {
     constructor(props){
         super(props);
         this.state = {
             pilots: [],
+            availabilities: [],
+            searchInput: "",
+            message: "",
+            messageType: "",
+            showMessage: false,
+            action: "",
+            validName: false,
+            pilotId: 0,
         }
+
+        this.inputBox = React.createRef();
 
         this.loadData();
     }
 
     loadData(){
         var pilotSocket = new WebSocket('ws://' + window.location.host + "/ws/pilots");
+        var availabilitySocket = new WebSocket('ws://' + window.location.host + "/ws/availability");
 
         pilotSocket.onmessage = (message) => {
             var pilotList = JSON.parse(message.data);
@@ -199,6 +41,142 @@ class App extends React.Component {
                 pilots: newPilots,
             });
         }
+
+        availabilitySocket.onmessage = (message) => {
+            var availabilityList = JSON.parse(message.data);
+            const newAvailabilities = [];
+            availabilityList.forEach(function(availability){
+                newAvailabilities.push(availability);
+            });
+    
+            this.setState({
+                availabilities: newAvailabilities,
+            });
+        }
+    }
+
+    searchInput(e){
+        this.setState({
+            searchInput: e.target.value,
+        });
+
+        // Get pilot name
+        var name = e.target.value;
+
+        // Check if pilot name is valid
+        var found = false;
+        var id = 0;
+        this.state.pilots.forEach((pilot) => {
+            const fullName = pilot.firstName + " " + pilot.lastName;
+            if(fullName == name){
+                found = true;
+                id = pilot.id;
+            }
+        });
+
+        if(found){
+            this.setState({
+                validName: true,
+                pilotId: id,
+            });
+
+            // Determine if they should checkin or checkout
+            var availabilityFound = false;
+            this.state.availabilities.forEach((avail) => {
+                if(avail.pilotId == id){
+                    availabilityFound = true;
+                }
+            });
+
+            if(availabilityFound){
+                this.setState({
+                    action: "checkout",
+                });
+            } else {
+                this.setState({
+                    action: "checkin",
+                });
+            }
+        } else {
+            this.setState({
+                action: "",
+                validName: false,
+            });
+        }
+    }
+
+    loginHandler(e){
+        e.preventDefault();
+
+        if(this.state.validName){
+            // Check the user check in or out
+            if(this.state.action == "checkin"){
+                this.checkIn();
+            } else {
+                this.checkOut();
+            }
+
+            // Reset the input field
+            this.inputBox.current.value = "";
+
+            // Reset the action and searchInput variables
+            this.setState({
+                action: "",
+                searchInput: "",
+            });
+        } else {
+            this.setMessage("Your name was not found in the system", "bad");
+        }
+    }
+
+    checkIn(){
+        const main = this;
+
+        $.ajax({
+            type: 'POST',
+            headers: { 
+                'Accept': 'application/json',
+                'Content-Type': 'application/json' 
+            },
+            url: '/api/availability',
+            data: JSON.stringify({
+                pilotId: this.state.pilotId
+            }),
+            success:function(){
+                // Send a message if the ajax call is successful
+                main.setMessage("You have checked in successfully", "good");
+            }
+        });
+    }
+
+    checkOut(){
+        const main = this;
+
+        $.ajax({
+            type: 'DELETE',
+            headers: { 
+                'Accept': 'application/json',
+                'Content-Type': 'application/json' 
+            },
+            url: '/api/availability',
+            data: JSON.stringify({
+                pilotId: this.state.pilotId
+            }),
+            success:function(){
+                // Send a message if the ajax call is successful
+                main.setMessage("You have checked out successfully", "good");
+            }
+        });
+    }
+
+    setMessage(message, messageType){
+        this.setState({
+            message: message,
+            messageType: messageType,
+            showMessage: true,
+        });
+
+        // Fade out message after 5 seconds
     }
 
     render(){
@@ -209,13 +187,25 @@ class App extends React.Component {
                     <h1 id="headerText">Check In/Out</h1>
                 </div>
                 <div id="formFields">
-                    <form action="#" method="POST" id="checkinForm" autoComplete="off">
-                        <input type="text" name="name" id="name" placeholder = "Enter name"/>
-                        <div id="searchList"></div>
-                        <input type="submit" id="checkin" name="checkin/out" value="Enter a valid name" disabled/>
+                    <form action="#" method="POST" id="checkinForm" autoComplete="off" onSubmit={this.loginHandler.bind(this)}>
+                        <input ref={this.inputBox} type="text" name="name" id="name" placeholder="Enter name" onChange={this.searchInput.bind(this)}/>
+                        <SearchList searchInput={this.state.searchInput} pilots={this.state.pilots} inputBox={this.inputBox}/>
+                        <input type="submit" id="checkin" value={this.state.action == "" ? "Enter a valid name" : 
+                                                                 this.state.action == "checkin" ? "Check In" : "Check Out"}/>
                     </form>
                 </div>
-                <div className="message"> </div>
+                <CSSTransition 
+                in={this.state.showMessage}
+                timeout={6000}
+                classNames="message"
+                unmountOnExit
+                onEntered={() => {
+                    this.setState({
+                        showMessage: false,
+                    });
+                }}>
+                    <div className="message" id={this.state.messageType == "good" ? "goodMessage" : "badMessage"}>{this.state.message}</div>
+                </CSSTransition>
             </div>
         );
     }

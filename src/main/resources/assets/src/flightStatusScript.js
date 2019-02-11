@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import './css/baseStyle.css';
 import './css/statusStyle.css';
 import logo from './images/logo.png';
+import SearchList from './searchList.js';
 
 function StatusOption(props){
     return (
@@ -10,67 +11,6 @@ function StatusOption(props){
             <p>{props.name}</p>
         </div>
     );
-}
-
-function SearchItem(props){
-    return (
-        <div className='searchItem' onClick={props.onPress}>{props.firstName} {props.lastName}</div>
-    );
-}
-
-class SearchList extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            found: false,
-            foundName: "",
-        }
-    }
-
-    handleClick(e){
-        this.props.inputBox.current.value = e.target.innerHTML;
-
-        this.setState({
-            found: true,
-            foundName: e.target.innerHTML,
-        })
-    }
-
-    render() {
-        const name = this.props.searchInput;
-
-        var searchItems = [];
-
-        if(!this.state.found){
-            const main = this;
-            if(name != ""){
-                this.props.pilots.forEach(function(pilot){
-                    //Check if full name is equal to searched
-                    //Check if only part of searched name is found
-                    var fullName = pilot.firstName + " " + pilot.lastName;
-                    if(fullName.toLowerCase() == name.toLowerCase()){
-                        main.props.inputBox.current.value = fullName;
-                    } else if(pilot.firstName.startsWith(name) || 
-                            pilot.firstName.toLowerCase().startsWith(name.toLowerCase()) || 
-                            fullName.startsWith(name) || 
-                            fullName.toLowerCase().startsWith(name.toLowerCase())){
-                        searchItems.push(<SearchItem key={pilot.id} firstName={pilot.firstName} lastName={pilot.lastName} onPress={main.handleClick.bind(main)}/>);
-                    }
-                });
-
-                //Check last names at the end
-                this.props.pilots.forEach(function(pilot){
-                    if(pilot.lastName.startsWith(name) || pilot.lastName.toLowerCase().startsWith(name.toLowerCase())){
-                        searchItems.push(<SearchItem key={pilot.id} firstName={pilot.firstName} lastName={pilot.lastName} onPress={main.handleClick.bind(main)}/>);
-                    }
-                });
-            }
-        } else {
-            this.state.found = false;
-        }
-
-        return <div id="searchList">{searchItems}</div>;
-    }
 }
 
 class App extends React.Component {
@@ -140,7 +80,6 @@ class App extends React.Component {
             if(fullName == name){
                 found = true;
                 id = pilot.id;
-                console.log(id);
             }
         });
 
@@ -233,9 +172,7 @@ class App extends React.Component {
                         <div id="loginView">
                             <form id="loginForm" action="#" autoComplete="off" method="POST" onSubmit={this.loginHandler.bind(this)}>
                                 <input ref={this.inputBox} type="text" name="name" id="name" placeholder="Enter name" onChange={this.searchInput.bind(this)}/>
-                                
                                 <SearchList searchInput={this.state.searchInput} pilots={this.state.pilots} inputBox={this.inputBox}/>
-                            
                                <input type="submit" id="login" value="Login"/>
                             </form>
                         </div>
