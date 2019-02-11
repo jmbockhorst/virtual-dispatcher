@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { TransitionGroup, CSSTransition } from 'react-transition-group';
+import { CSSTransition } from 'react-transition-group';
 import './css/baseStyle.css';
 import './css/checkinStyle.css';
 import logo from './images/logo.png';

@@ -4,8 +4,6 @@ import './css/baseStyle.css';
 import './css/waitingRoomStyle.css';
 import logo from './images/logo.png';
 
-var host = "";
-
 function ListItem(props){
     return (
         <div className="listItem" id={props.id}>
@@ -56,7 +54,9 @@ class FlightList extends React.Component {
             //$("#last").effect('highlight', {color: "rgb(150, 0, 0)"}, 1000);
         }
         
-        this.state.lastname = currentName;
+        this.setState({
+            lastName: currentName,
+        })
 
         return <div id="flightList">{flightList}</div>;
     }

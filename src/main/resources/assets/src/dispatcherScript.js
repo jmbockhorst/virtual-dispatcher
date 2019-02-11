@@ -10,7 +10,6 @@ function getTimeDiff(oldTime){
     var time = new Date().getTime();
 
     var timeDiff;
-    var hoursDiff = 0;
 
     var millsDiff = time - oldTime;
     var secondsDiff = millsDiff / 1000;
@@ -256,7 +255,6 @@ class WaitingList extends React.Component {
             });
 
             availabilityList.forEach(function(pilot){
-            const newAvails = [];
                 newAvailabilities.push(pilot);
             });
 

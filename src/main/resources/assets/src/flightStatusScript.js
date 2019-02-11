@@ -5,6 +5,8 @@ import './css/statusStyle.css';
 import logo from './images/logo.png';
 import SearchList from './searchList.js';
 
+const host = "";
+
 function StatusOption(props){
     return (
         <div className="statusOption" id={props.id} onClick={props.onPress}>

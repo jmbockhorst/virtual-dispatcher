@@ -13,12 +13,14 @@ module.exports = {
         "es6":     true,
         "browser": true,
         "node":    true,
-        "mocha":   true
+        "mocha":   true,
+        "jquery": true
     },   
     "extends": [
         "eslint:recommended", 
         "plugin:react/recommended"
     ],    
     "rules": {
+        "react/prop-types": 0
     }
 }

@@ -59,7 +59,9 @@ class SearchList extends React.Component {
                 });
             }
         } else {
-            this.state.found = false;
+            this.setState({
+                found: false,
+            })
         }
 
         return <div id="searchList">{searchItems}</div>;
