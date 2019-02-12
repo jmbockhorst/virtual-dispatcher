@@ -4,7 +4,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 import virtualdispatcher.api.Availability;
 import virtualdispatcher.api.AvailabilityFactory;
-import virtualdispatcher.api.DefaultAvailability;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

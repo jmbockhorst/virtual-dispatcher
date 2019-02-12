@@ -2,6 +2,7 @@ package virtualdispatcher.db.dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Component;
 import virtualdispatcher.api.Zone;
 import virtualdispatcher.db.mapper.ZoneMapper;
 
@@ -12,6 +13,7 @@ import java.util.List;
  *
  * @author Grayson Kuhns
  */
+@Component
 public class ZoneDAO {
 
   // Dependencies

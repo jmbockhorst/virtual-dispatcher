@@ -5,7 +5,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 import virtualdispatcher.api.Aircraft;
 import virtualdispatcher.api.AircraftFactory;
-import virtualdispatcher.api.DefaultAircraft;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

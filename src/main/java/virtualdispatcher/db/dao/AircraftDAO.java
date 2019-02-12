@@ -2,7 +2,7 @@ package virtualdispatcher.db.dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Component;
 import virtualdispatcher.api.Aircraft;
 import virtualdispatcher.core.request.OperationalStatusUpdateRequest;
 import virtualdispatcher.db.mapper.AircraftMapper;
@@ -10,7 +10,7 @@ import virtualdispatcher.db.mapper.AircraftMapper;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@RestController
+@Component
 public class AircraftDAO {
 
   private final JdbcTemplate jdbcTemplate;
@@ -31,9 +31,7 @@ public class AircraftDAO {
    *
    * @param id The pilot ID.
    */
-  @RequestMapping(value = "/api/aircraft/{id}", method = RequestMethod.POST)
-  public void updateOperationalStatus(
-      @PathVariable("id") int id, @RequestBody OperationalStatusUpdateRequest aircraft) {
+  public void updateOperationalStatus(int id, OperationalStatusUpdateRequest aircraft) {
     this.jdbcTemplate.update(
         "UPDATE aircraft SET operational = ? WHERE id = ?", aircraft.getOperational(), id);
   }

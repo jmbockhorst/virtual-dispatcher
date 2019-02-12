@@ -2,7 +2,7 @@ package virtualdispatcher.db.dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Component;
 import virtualdispatcher.api.Flight;
 import virtualdispatcher.core.request.UpdateFlightStatusRequest;
 import virtualdispatcher.db.mapper.FlightMapper;
@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 /**
  * {@link Flight}
  */
-@RestController
+@Component
 public class FlightDAO {
 
     // Dependencies
@@ -47,9 +47,7 @@ public class FlightDAO {
                 .collect(Collectors.toList());
     }
 
-    @RequestMapping(value = "/api/flights/{id}", method = RequestMethod.POST)
-    public void updateFlight(
-            @PathVariable("id") int id, @RequestBody UpdateFlightStatusRequest request) {
+    public void updateFlight(int id, UpdateFlightStatusRequest request) {
         if (request.getStarted() != null) {
             changeStartedStatus(id, request.getStarted());
         }

@@ -2,7 +2,6 @@ package virtualdispatcher.db.mapper;
 
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
-import virtualdispatcher.api.DefaultFlight;
 import virtualdispatcher.api.Flight;
 import virtualdispatcher.api.FlightFactory;
 
