@@ -1,6 +1,6 @@
 import React from 'react';
 
-function SearchItem(props){
+function SearchItem(props) {
     return (
         <div className='searchItem' onClick={props.onPress}>{props.firstName} {props.lastName}</div>
     );
@@ -15,7 +15,7 @@ class SearchList extends React.Component {
         }
     }
 
-    handleClick(e){
+    handleClick(e) {
         this.setState({
             found: true,
             foundName: e.target.innerHTML,
@@ -25,7 +25,7 @@ class SearchList extends React.Component {
         var nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
         nativeInputValueSetter.call(this.props.inputBox.current, e.target.innerHTML);
 
-        var ev2 = new Event('input', { bubbles: true});
+        var ev2 = new Event('input', { bubbles: true });
         this.props.inputBox.current.dispatchEvent(ev2);
     }
 
@@ -34,27 +34,27 @@ class SearchList extends React.Component {
 
         var searchItems = [];
 
-        if(!this.state.found){
+        if (!this.state.found) {
             const main = this;
-            if(name != ""){
-                this.props.pilots.forEach(function(pilot){
+            if (name != "") {
+                this.props.pilots.forEach(function (pilot) {
                     //Check if full name is equal to searched
                     //Check if only part of searched name is found
                     var fullName = pilot.firstName + " " + pilot.lastName;
-                    if(fullName.toLowerCase() == name.toLowerCase()){
+                    if (fullName.toLowerCase() == name.toLowerCase()) {
                         main.props.inputBox.current.value = fullName;
-                    } else if(pilot.firstName.startsWith(name) || 
-                            pilot.firstName.toLowerCase().startsWith(name.toLowerCase()) || 
-                            fullName.startsWith(name) || 
-                            fullName.toLowerCase().startsWith(name.toLowerCase())){
-                        searchItems.push(<SearchItem key={pilot.id} firstName={pilot.firstName} lastName={pilot.lastName} onPress={main.handleClick.bind(main)}/>);
+                    } else if (pilot.firstName.startsWith(name) ||
+                        pilot.firstName.toLowerCase().startsWith(name.toLowerCase()) ||
+                        fullName.startsWith(name) ||
+                        fullName.toLowerCase().startsWith(name.toLowerCase())) {
+                        searchItems.push(<SearchItem key={pilot.id} firstName={pilot.firstName} lastName={pilot.lastName} onPress={main.handleClick.bind(main)} />);
                     }
                 });
 
                 //Check last names at the end
-                this.props.pilots.forEach(function(pilot){
-                    if(pilot.lastName.startsWith(name) || pilot.lastName.toLowerCase().startsWith(name.toLowerCase())){
-                        searchItems.push(<SearchItem key={pilot.id} firstName={pilot.firstName} lastName={pilot.lastName} onPress={main.handleClick.bind(main)}/>);
+                this.props.pilots.forEach(function (pilot) {
+                    if (pilot.lastName.startsWith(name) || pilot.lastName.toLowerCase().startsWith(name.toLowerCase())) {
+                        searchItems.push(<SearchItem key={pilot.id} firstName={pilot.firstName} lastName={pilot.lastName} onPress={main.handleClick.bind(main)} />);
                     }
                 });
             }

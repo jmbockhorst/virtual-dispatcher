@@ -7,7 +7,7 @@ import logo from './images/logo.png';
 import SearchList from './searchList.js';
 
 class App extends React.Component {
-    constructor(props){
+    constructor(props) {
         super(props);
         this.state = {
             pilots: [],
@@ -26,17 +26,17 @@ class App extends React.Component {
         this.loadData();
     }
 
-    loadData(){
+    loadData() {
         var pilotSocket = new WebSocket('ws://' + window.location.host + "/ws/pilots");
         var availabilitySocket = new WebSocket('ws://' + window.location.host + "/ws/availability");
 
         pilotSocket.onmessage = (message) => {
             var pilotList = JSON.parse(message.data);
             const newPilots = [];
-            pilotList.forEach(function(pilot){
+            pilotList.forEach(function (pilot) {
                 newPilots.push(pilot);
             });
-    
+
             this.setState({
                 pilots: newPilots,
             });
@@ -45,17 +45,17 @@ class App extends React.Component {
         availabilitySocket.onmessage = (message) => {
             var availabilityList = JSON.parse(message.data);
             const newAvailabilities = [];
-            availabilityList.forEach(function(availability){
+            availabilityList.forEach(function (availability) {
                 newAvailabilities.push(availability);
             });
-    
+
             this.setState({
                 availabilities: newAvailabilities,
             });
         }
     }
 
-    searchInput(e){
+    searchInput(e) {
         this.setState({
             searchInput: e.target.value,
         });
@@ -68,13 +68,13 @@ class App extends React.Component {
         var id = 0;
         this.state.pilots.forEach((pilot) => {
             const fullName = pilot.firstName + " " + pilot.lastName;
-            if(fullName == name){
+            if (fullName == name) {
                 found = true;
                 id = pilot.id;
             }
         });
 
-        if(found){
+        if (found) {
             this.setState({
                 validName: true,
                 pilotId: id,
@@ -83,12 +83,12 @@ class App extends React.Component {
             // Determine if they should checkin or checkout
             var availabilityFound = false;
             this.state.availabilities.forEach((avail) => {
-                if(avail.pilotId == id){
+                if (avail.pilotId == id) {
                     availabilityFound = true;
                 }
             });
 
-            if(availabilityFound){
+            if (availabilityFound) {
                 this.setState({
                     action: "checkout",
                 });
@@ -105,12 +105,12 @@ class App extends React.Component {
         }
     }
 
-    loginHandler(e){
+    loginHandler(e) {
         e.preventDefault();
 
-        if(this.state.validName){
+        if (this.state.validName) {
             // Check the user check in or out
-            if(this.state.action == "checkin"){
+            if (this.state.action == "checkin") {
                 this.checkIn();
             } else {
                 this.checkOut();
@@ -129,47 +129,47 @@ class App extends React.Component {
         }
     }
 
-    checkIn(){
+    checkIn() {
         const main = this;
 
         $.ajax({
             type: 'POST',
-            headers: { 
+            headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json' 
+                'Content-Type': 'application/json'
             },
             url: '/api/availability',
             data: JSON.stringify({
                 pilotId: this.state.pilotId
             }),
-            success:function(){
+            success: function () {
                 // Send a message if the ajax call is successful
                 main.setMessage("You have checked in successfully", "good");
             }
         });
     }
 
-    checkOut(){
+    checkOut() {
         const main = this;
 
         $.ajax({
             type: 'DELETE',
-            headers: { 
+            headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json' 
+                'Content-Type': 'application/json'
             },
             url: '/api/availability',
             data: JSON.stringify({
                 pilotId: this.state.pilotId
             }),
-            success:function(){
+            success: function () {
                 // Send a message if the ajax call is successful
                 main.setMessage("You have checked out successfully", "good");
             }
         });
     }
 
-    setMessage(message, messageType){
+    setMessage(message, messageType) {
         this.setState({
             message: message,
             messageType: messageType,
@@ -179,7 +179,7 @@ class App extends React.Component {
         // Fade out message after 5 seconds
     }
 
-    render(){
+    render() {
         return (
             <div className="middleDiv">
                 <div id="header">
@@ -188,22 +188,22 @@ class App extends React.Component {
                 </div>
                 <div id="formFields">
                     <form action="#" method="POST" id="checkinForm" autoComplete="off" onSubmit={this.loginHandler.bind(this)}>
-                        <input ref={this.inputBox} type="text" name="name" id="name" placeholder="Enter name" onChange={this.searchInput.bind(this)}/>
-                        <SearchList searchInput={this.state.searchInput} pilots={this.state.pilots} inputBox={this.inputBox}/>
-                        <input type="submit" id="checkin" value={this.state.action == "" ? "Enter a valid name" : 
-                                                                 this.state.action == "checkin" ? "Check In" : "Check Out"}/>
+                        <input ref={this.inputBox} type="text" name="name" id="name" placeholder="Enter name" onChange={this.searchInput.bind(this)} />
+                        <SearchList searchInput={this.state.searchInput} pilots={this.state.pilots} inputBox={this.inputBox} />
+                        <input type="submit" id="checkin" value={this.state.action == "" ? "Enter a valid name" :
+                            this.state.action == "checkin" ? "Check In" : "Check Out"} />
                     </form>
                 </div>
-                <CSSTransition 
-                in={this.state.showMessage}
-                timeout={6000}
-                classNames="message"
-                unmountOnExit
-                onEntered={() => {
-                    this.setState({
-                        showMessage: false,
-                    });
-                }}>
+                <CSSTransition
+                    in={this.state.showMessage}
+                    timeout={6000}
+                    classNames="message"
+                    unmountOnExit
+                    onEntered={() => {
+                        this.setState({
+                            showMessage: false,
+                        });
+                    }}>
                     <div className="message" id={this.state.messageType == "good" ? "goodMessage" : "badMessage"}>{this.state.message}</div>
                 </CSSTransition>
             </div>
