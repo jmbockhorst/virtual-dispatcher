@@ -18,10 +18,16 @@ module.exports = {
     module: {
         rules: [
             {
+                enforce: 'pre',
+                test: /\.js?$/,
+                loader: 'eslint-loader',
+                exclude: /node_modules/,
+            },
+            {
                 test: /\.(js|jsx)$/,
                 exclude: /(node_modules|bower_components)/,
                 loader: "babel-loader",
-                options: { presets: ["@babel/preset-react"] }
+                options: { presets: ["@babel/preset-env", "@babel/preset-react"] }
             },
             {
                 test: /\.css$/,
