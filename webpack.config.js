@@ -6,7 +6,7 @@ const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 module.exports = {
     entry: {
         flightStatus: './src/main/resources/assets/src/flightStatusScript.js',
-        dispatcherView: './src/main/resources/assets/src/dispatcherScript.js',
+        dispatcherView: './src/main/resources/assets/src/dispatcherScript.tsx',
         checkin: './src/main/resources/assets/src/checkinScript.js',
         waitingRoom: './src/main/resources/assets/src/waitingRoomScript.js'
     },
@@ -22,6 +22,15 @@ module.exports = {
                 test: /\.js?$/,
                 loader: 'eslint-loader',
                 exclude: /node_modules/,
+            },
+            {
+                test: /\.tsx?$/,
+                loader: "awesome-typescript-loader"
+            },
+            {
+                enforce: "pre",
+                test: /\.js$/,
+                loader: "source-map-loader"
             },
             {
                 test: /\.(js|jsx)$/,

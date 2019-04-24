@@ -1,33 +1,34 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import $ from 'jquery';
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
+import * as $ from 'jquery';
 
-import pilotImage from './images/pilot.png';
-import zoneImage from './images/zone.png';
-import maintenanceImage from './images/maintenance.png';
-import statusImage from './images/status.png';
-import timeImage from './images/time.png';
-import questionImage from './images/question.png';
-import tailTop from './images/tail_top.png';
-import tailInUse from './images/tail_inuse.png';
-import tailAvailable from './images/tail_available.png';
-import tailMaintenance from './images/tail_maintenance.png';
+import * as pilotImage from './images/pilot.png';
+import * as zoneImage from './images/zone.png';
+import * as maintenanceImage from './images/maintenance.png';
+import * as statusImage from './images/status.png';
+import * as timeImage from './images/time.png';
+import * as questionImage from './images/question.png';
+import * as tailTop from './images/tail_top.png';
+import * as tailInUse from './images/tail_inuse.png';
+import * as tailAvailable from './images/tail_available.png';
+import * as tailMaintenance from './images/tail_maintenance.png';
 
 import './css/baseStyle.css';
 import './css/dispatcherStyle.css';
+import { Availability, Aircraft, Flight, Pilot } from './models';
 
 var host = "http://lvh.me:8080";
 host = "";
 
-function getTimeDiff(oldTime) {
-    var time = new Date().getTime();
+function getTimeDiff(oldTime: number) {
+    const time = new Date().getTime();
 
-    var timeDiff;
+    let timeDiff;
 
-    var millsDiff = time - oldTime;
-    var secondsDiff = millsDiff / 1000;
-    var minutesDiff = Math.floor(secondsDiff / 60) % 60;
-    var hoursDiff = Math.floor(secondsDiff / 60 / 60);
+    const millsDiff = time - oldTime;
+    const secondsDiff = millsDiff / 1000;
+    const minutesDiff = Math.floor(secondsDiff / 60) % 60;
+    const hoursDiff = Math.floor(secondsDiff / 60 / 60);
 
     if (hoursDiff == 0) {
         timeDiff = minutesDiff + " minutes";
@@ -63,23 +64,38 @@ $(document).ready(function () {
     });
 });
 
-//New React code
-class InfoImage extends React.Component {
+interface InfoImageProps {
+    image: any;
+}
+
+class InfoImage extends React.Component<InfoImageProps> {
     render() {
         return <img className="infoImg" src={this.props.image} />
     }
 }
 
-class InfoText extends React.Component {
+interface InfoTextProps {
+    text: string;
+    class?: string;
+}
+
+class InfoText extends React.Component<InfoTextProps> {
     render() {
         return (
-            <div className="infoText" id={this.props.id}>{this.props.text}</div>
+            <div className="infoText" id={this.props.class}>{this.props.text}</div>
         );
     }
 }
 
-class Plane extends React.Component {
-    maintenanceChanged(planeId, event) {
+interface PlaneProps {
+    pilot: string;
+    plane: Aircraft;
+    zone: number;
+    started: boolean;
+}
+
+class Plane extends React.Component<PlaneProps> {
+    maintenanceChanged(planeId: number, event: React.ChangeEvent<HTMLInputElement>) {
         //Change maintenance mode
         $.ajax({
             type: 'POST',
@@ -104,24 +120,24 @@ class Plane extends React.Component {
                             [
                                 <div className="planeInfoBox" key='1'>
                                     <InfoImage image={pilotImage} />
-                                    <InfoText id="pilotName" text={this.props.pilot} />
+                                    <InfoText class="pilotName" text={this.props.pilot} />
                                 </div>,
                                 <div className="planeInfoBox" key='2'>
                                     <InfoImage image={zoneImage} />
-                                    <InfoText id="zone" text={'Zone ' + this.props.zone} />
+                                    <InfoText class="zone" text={'Zone ' + this.props.zone} />
                                 </div>
                             ]
                             :
                             //Else render this code
                             <div className="planeInfoBox" id="maintenanceBox">
                                 <InfoImage image={maintenanceImage} />
-                                <InfoText id="maintenance" text="Maintenance" />
+                                <InfoText class="maintenance" text="Maintenance" />
                                 <form action="#" method="POST">
                                     {
                                         this.props.plane.operational ?
                                             <input type="checkbox" id="maintenanceTrigger" onChange={(e) => this.maintenanceChanged(this.props.plane.id, e)} />
                                             :
-                                            <input type="checkbox" id="maintenanceTrigger" onChange={(e) => this.maintenanceChanged(this.props.plane.id, e)} defaultChecked="true" />
+                                            <input type="checkbox" id="maintenanceTrigger" onChange={(e) => this.maintenanceChanged(this.props.plane.id, e)} defaultChecked={true} />
                                     }
                                 </form>
                             </div>
@@ -153,8 +169,17 @@ class Plane extends React.Component {
     }
 }
 
-class PlaneList extends React.Component {
-    constructor(props) {
+interface PlaneListProps {
+    pilots: Pilot[];
+}
+
+interface PlaneListState {
+    planes: Aircraft[];
+    flights: Flight[];
+}
+
+class PlaneList extends React.Component<PlaneListProps, PlaneListState> {
+    constructor(props: PlaneListProps) {
         super(props);
         this.state = {
             planes: [],
@@ -165,13 +190,13 @@ class PlaneList extends React.Component {
     }
 
     loadData() {
-        var aircraftSocket = new WebSocket('ws://' + window.location.host + "/ws/aircraft");
-        var flightSocket = new WebSocket('ws://' + window.location.host + "/ws/flights");
+        const aircraftSocket = new WebSocket('ws://' + window.location.host + "/ws/aircraft");
+        const flightSocket = new WebSocket('ws://' + window.location.host + "/ws/flights");
 
         aircraftSocket.onmessage = (message) => {
-            var planesList = JSON.parse(message.data);
-            const newPlanes = [];
-            planesList.forEach(function (plane) {
+            const planesList: Aircraft[] = JSON.parse(message.data);
+            const newPlanes: Aircraft[] = [];
+            planesList.forEach(plane => {
                 newPlanes.push(plane);
             });
 
@@ -181,9 +206,9 @@ class PlaneList extends React.Component {
         }
 
         flightSocket.onmessage = (message) => {
-            var flightList = JSON.parse(message.data);
-            const newFlights = [];
-            flightList.forEach(function (flight) {
+            const flightList: Flight[] = JSON.parse(message.data);
+            const newFlights: Flight[] = [];
+            flightList.forEach(flight => {
                 //Put each flight in array spot associated with plane
                 if (!flight.completed) {
                     newFlights[flight.aircraftId - 1] = flight;
@@ -199,14 +224,14 @@ class PlaneList extends React.Component {
     render() {
         const planesList = this.state.planes.map((p, i) => {
             const flight = this.state.flights[i];
-            var pilot = null;
-            var zone = null;
-            var started = null;
+            let pilotName = null;
+            let zone = null;
+            let started = null;
 
             if (flight != null) {
-                for (i = 0; i < this.props.pilots.length; i++) {
-                    if (this.props.pilots[i].id === flight.pilotId) {
-                        pilot = this.props.pilots[i].firstName + " " + this.props.pilots[i].lastName;
+                for (const pilot of this.props.pilots) {
+                    if (pilot.id === flight.pilotId) {
+                        pilotName = pilot.firstName + " " + pilot.lastName;
                         break;
                     }
                 }
@@ -215,15 +240,20 @@ class PlaneList extends React.Component {
                 started = flight.started;
             }
 
-            return <Plane key={p.id} plane={p} pilot={pilot} zone={zone} started={started} />
+            return <Plane key={p.id} plane={p} pilot={pilotName} zone={zone} started={started} />
         });
 
         return planesList;
     }
 }
 
+interface WaitingPilotProps {
+    timeCreated: number;
+    pilotName: string;
+}
+
 //Waiting list React code
-class WaitingPilot extends React.Component {
+class WaitingPilot extends React.Component<WaitingPilotProps> {
     render() {
         const timeDiff = getTimeDiff(this.props.timeCreated);
 
@@ -236,7 +266,7 @@ class WaitingPilot extends React.Component {
                     </div>
                     <div className="pilotInfoBox">
                         <InfoImage image={timeImage} />
-                        <InfoText id="waitTime" text={'Has been waiting for ' + timeDiff} />
+                        <InfoText class="waitTime" text={'Has been waiting for ' + timeDiff} />
                     </div>
                 </div>
             </div>
@@ -244,26 +274,33 @@ class WaitingPilot extends React.Component {
     }
 }
 
-class WaitingList extends React.Component {
-    constructor(props) {
+interface WaitingListProps {
+    pilots: Pilot[];
+}
+
+interface WaitingListState {
+    waitingPilots: Availability[];
+}
+
+class WaitingList extends React.Component<WaitingListProps, WaitingListState> {
+    constructor(props: WaitingListProps) {
         super(props);
         this.state = {
             waitingPilots: [],
-            currentTime: new Date().getTime(),
         };
 
         this.loadData();
     }
 
     loadData() {
-        var availabilitySocket = new WebSocket('ws://' + window.location.host + "/ws/availability");
+        const availabilitySocket = new WebSocket('ws://' + window.location.host + "/ws/availability");
 
         availabilitySocket.onmessage = (message) => {
-            var availabilityList = JSON.parse(message.data);
-            const newAvailabilities = [];
+            const availabilityList: Availability[] = JSON.parse(message.data);
+            const newAvailabilities: Availability[] = [];
 
             //Sort by time
-            availabilityList.sort(function (a, b) {
+            availabilityList.sort((a, b) => {
                 return a.timeCreated - b.timeCreated;
             });
 
@@ -277,40 +314,37 @@ class WaitingList extends React.Component {
         }
     }
 
-    componentDidMount() {
-        var that = this;
-        setInterval(function () {
-            that.setState({
-                currentTime: new Date().getTime(),
-            });
-        }, 1000);
-    }
-
     render() {
-        const waitingList = this.state.waitingPilots.map((p, i) => {
+        return this.state.waitingPilots.map(availability => {
             var pilotName = "";
-            for (i = 0; i < this.props.pilots.length; i++) {
-                if (this.props.pilots[i].id === p.pilotId) {
-                    pilotName = this.props.pilots[i].firstName + " " + this.props.pilots[i].lastName;
+            for (const pilot of this.props.pilots) {
+                if (pilot.id === availability.pilotId) {
+                    pilotName = pilot.firstName + " " + pilot.lastName;
                     break;
                 }
             }
 
-            return <WaitingPilot key={p.pilotId} pilotName={pilotName} timeCreated={p.timeCreated} currentTime={this.state.currentTime} />
+            return <WaitingPilot key={availability.pilotId} pilotName={pilotName} timeCreated={availability.timeCreated} />
         });
-
-        return waitingList;
     }
 }
 
-class ListHeader extends React.Component {
+interface ListHeaderProps {
+    text: string;
+}
+
+class ListHeader extends React.Component<ListHeaderProps> {
     render() {
         return <p className="listHeader">{this.props.text}</p>
     }
 }
 
+interface MenuItemProps {
+    image: any;
+    text: string;
+}
 
-class MenuItem extends React.Component {
+class MenuItem extends React.Component<MenuItemProps> {
     render() {
         return (
             <tr>
@@ -330,7 +364,7 @@ class HelpMenu extends React.Component {
                 <table id="toolTipTable" className="hidden">
                     <tbody>
                         <tr>
-                            <th colSpan="2">Help</th>
+                            <th colSpan={2}>Help</th>
                         </tr>
                         <MenuItem text="Assigned Pilot" image={pilotImage} />
                         <MenuItem text="Assigned Zone" image={zoneImage} />
@@ -357,8 +391,12 @@ class HelpMenu extends React.Component {
     }
 }
 
-class App extends React.Component {
-    constructor(props) {
+interface AppState {
+    pilots: Pilot[];
+}
+
+class App extends React.Component<{}, AppState> {
+    constructor(props: any) {
         super(props);
         this.state = {
             pilots: [],
@@ -371,9 +409,9 @@ class App extends React.Component {
         var pilotSocket = new WebSocket('ws://' + window.location.host + "/ws/pilots");
 
         pilotSocket.onmessage = (message) => {
-            var pilotList = JSON.parse(message.data);
-            const newPilots = [];
-            pilotList.forEach(function (pilot) {
+            var pilotList: Pilot[] = JSON.parse(message.data);
+            const newPilots: Pilot[] = [];
+            pilotList.forEach(pilot => {
                 newPilots.push(pilot);
             });
 
@@ -385,19 +423,17 @@ class App extends React.Component {
 
     render() {
         return (
-            [
-                <div id="planeInfo" className="column" key={1}>
+            <>
+                <div id="planeInfo" className="column">
                     <ListHeader text="Planes" />
                     <PlaneList pilots={this.state.pilots} />
                 </div>
-                ,
-                <div id="waitingList" className="column" key={2}>
+                <div id="waitingList" className="column">
                     <ListHeader text="Waiting List" />
                     <WaitingList pilots={this.state.pilots} />
                 </div>
-                ,
-                <HelpMenu key={3} />
-            ]
+                <HelpMenu />
+            </>
         );
     }
 }
