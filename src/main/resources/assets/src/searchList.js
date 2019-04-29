@@ -6,7 +6,7 @@ function SearchItem(props) {
     );
 }
 
-class SearchList extends React.Component {
+export default class SearchList extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -22,17 +22,17 @@ class SearchList extends React.Component {
         })
 
         // Set the value to the input box and fire an onChange event
-        var nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
+        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
         nativeInputValueSetter.call(this.props.inputBox.current, e.target.innerHTML);
 
-        var ev2 = new Event('input', { bubbles: true });
+        const ev2 = new Event('input', { bubbles: true });
         this.props.inputBox.current.dispatchEvent(ev2);
     }
 
     render() {
         const name = this.props.searchInput;
 
-        var searchItems = [];
+        const searchItems = [];
 
         if (!this.state.found) {
             const main = this;
@@ -40,7 +40,7 @@ class SearchList extends React.Component {
                 this.props.pilots.forEach(function (pilot) {
                     //Check if full name is equal to searched
                     //Check if only part of searched name is found
-                    var fullName = pilot.firstName + " " + pilot.lastName;
+                    const fullName = pilot.firstName + " " + pilot.lastName;
                     if (fullName.toLowerCase() == name.toLowerCase()) {
                         main.props.inputBox.current.value = fullName;
                     } else if (pilot.firstName.startsWith(name) ||
@@ -67,5 +67,3 @@ class SearchList extends React.Component {
         return <div id="searchList">{searchItems}</div>;
     }
 }
-
-export default SearchList;

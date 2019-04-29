@@ -16,18 +16,18 @@ import tailMaintenance from './images/tail_maintenance.png';
 import './css/baseStyle.css';
 import './css/dispatcherStyle.css';
 
-var host = "http://lvh.me:8080";
+let host = "http://lvh.me:8080";
 host = "";
 
 function getTimeDiff(oldTime) {
-    var time = new Date().getTime();
+    const time = new Date().getTime();
 
-    var timeDiff;
+    let timeDiff;
 
-    var millsDiff = time - oldTime;
-    var secondsDiff = millsDiff / 1000;
-    var minutesDiff = Math.floor(secondsDiff / 60) % 60;
-    var hoursDiff = Math.floor(secondsDiff / 60 / 60);
+    const millsDiff = time - oldTime;
+    const secondsDiff = millsDiff / 1000;
+    const minutesDiff = Math.floor(secondsDiff / 60) % 60;
+    const hoursDiff = Math.floor(secondsDiff / 60 / 60);
 
     if (hoursDiff == 0) {
         timeDiff = minutesDiff + " minutes";
@@ -101,16 +101,16 @@ class Plane extends React.Component {
                     {
                         this.props.pilot != null ?
                             //Render this code if there is a flight
-                            [
+                            <>
                                 <div className="planeInfoBox" key='1'>
                                     <InfoImage image={pilotImage} />
                                     <InfoText id="pilotName" text={this.props.pilot} />
-                                </div>,
+                                </div>
                                 <div className="planeInfoBox" key='2'>
                                     <InfoImage image={zoneImage} />
                                     <InfoText id="zone" text={'Zone ' + this.props.zone} />
                                 </div>
-                            ]
+                            </>
                             :
                             //Else render this code
                             <div className="planeInfoBox" id="maintenanceBox">
@@ -165,11 +165,11 @@ class PlaneList extends React.Component {
     }
 
     loadData() {
-        var aircraftSocket = new WebSocket('ws://' + window.location.host + "/ws/aircraft");
-        var flightSocket = new WebSocket('ws://' + window.location.host + "/ws/flights");
+        const aircraftSocket = new WebSocket('ws://' + window.location.host + "/ws/aircraft");
+        const flightSocket = new WebSocket('ws://' + window.location.host + "/ws/flights");
 
         aircraftSocket.onmessage = (message) => {
-            var planesList = JSON.parse(message.data);
+            const planesList = JSON.parse(message.data);
             const newPlanes = [];
             planesList.forEach(function (plane) {
                 newPlanes.push(plane);
@@ -181,7 +181,7 @@ class PlaneList extends React.Component {
         }
 
         flightSocket.onmessage = (message) => {
-            var flightList = JSON.parse(message.data);
+            const flightList = JSON.parse(message.data);
             const newFlights = [];
             flightList.forEach(function (flight) {
                 //Put each flight in array spot associated with plane
@@ -199,9 +199,9 @@ class PlaneList extends React.Component {
     render() {
         const planesList = this.state.planes.map((p, i) => {
             const flight = this.state.flights[i];
-            var pilot = null;
-            var zone = null;
-            var started = null;
+            let pilot = null;
+            let zone = null;
+            let started = null;
 
             if (flight != null) {
                 for (i = 0; i < this.props.pilots.length; i++) {
@@ -256,10 +256,10 @@ class WaitingList extends React.Component {
     }
 
     loadData() {
-        var availabilitySocket = new WebSocket('ws://' + window.location.host + "/ws/availability");
+        const availabilitySocket = new WebSocket('ws://' + window.location.host + "/ws/availability");
 
         availabilitySocket.onmessage = (message) => {
-            var availabilityList = JSON.parse(message.data);
+            const availabilityList = JSON.parse(message.data);
             const newAvailabilities = [];
 
             //Sort by time
@@ -278,7 +278,7 @@ class WaitingList extends React.Component {
     }
 
     componentDidMount() {
-        var that = this;
+        const that = this;
         setInterval(function () {
             that.setState({
                 currentTime: new Date().getTime(),
@@ -287,8 +287,8 @@ class WaitingList extends React.Component {
     }
 
     render() {
-        const waitingList = this.state.waitingPilots.map((p, i) => {
-            var pilotName = "";
+        return this.state.waitingPilots.map((p, i) => {
+            let pilotName = "";
             for (i = 0; i < this.props.pilots.length; i++) {
                 if (this.props.pilots[i].id === p.pilotId) {
                     pilotName = this.props.pilots[i].firstName + " " + this.props.pilots[i].lastName;
@@ -298,8 +298,6 @@ class WaitingList extends React.Component {
 
             return <WaitingPilot key={p.pilotId} pilotName={pilotName} timeCreated={p.timeCreated} currentTime={this.state.currentTime} />
         });
-
-        return waitingList;
     }
 }
 
@@ -368,10 +366,10 @@ class App extends React.Component {
     }
 
     loadData() {
-        var pilotSocket = new WebSocket('ws://' + window.location.host + "/ws/pilots");
+        const pilotSocket = new WebSocket('ws://' + window.location.host + "/ws/pilots");
 
         pilotSocket.onmessage = (message) => {
-            var pilotList = JSON.parse(message.data);
+            const pilotList = JSON.parse(message.data);
             const newPilots = [];
             pilotList.forEach(function (pilot) {
                 newPilots.push(pilot);
@@ -385,19 +383,17 @@ class App extends React.Component {
 
     render() {
         return (
-            [
+            <>
                 <div id="planeInfo" className="column" key={1}>
                     <ListHeader text="Planes" />
                     <PlaneList pilots={this.state.pilots} />
                 </div>
-                ,
                 <div id="waitingList" className="column" key={2}>
                     <ListHeader text="Waiting List" />
                     <WaitingList pilots={this.state.pilots} />
                 </div>
-                ,
                 <HelpMenu key={3} />
-            ]
+            </>
         );
     }
 }

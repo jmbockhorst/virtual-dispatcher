@@ -27,11 +27,11 @@ class App extends React.Component {
     }
 
     loadData() {
-        var pilotSocket = new WebSocket('ws://' + window.location.host + "/ws/pilots");
-        var availabilitySocket = new WebSocket('ws://' + window.location.host + "/ws/availability");
+        const pilotSocket = new WebSocket('ws://' + window.location.host + "/ws/pilots");
+        const availabilitySocket = new WebSocket('ws://' + window.location.host + "/ws/availability");
 
         pilotSocket.onmessage = (message) => {
-            var pilotList = JSON.parse(message.data);
+            const pilotList = JSON.parse(message.data);
             const newPilots = [];
             pilotList.forEach(function (pilot) {
                 newPilots.push(pilot);
@@ -43,7 +43,7 @@ class App extends React.Component {
         }
 
         availabilitySocket.onmessage = (message) => {
-            var availabilityList = JSON.parse(message.data);
+            const availabilityList = JSON.parse(message.data);
             const newAvailabilities = [];
             availabilityList.forEach(function (availability) {
                 newAvailabilities.push(availability);
@@ -61,11 +61,11 @@ class App extends React.Component {
         });
 
         // Get pilot name
-        var name = e.target.value;
+        const name = e.target.value;
 
         // Check if pilot name is valid
-        var found = false;
-        var id = 0;
+        let found = false;
+        let id = 0;
         this.state.pilots.forEach((pilot) => {
             const fullName = pilot.firstName + " " + pilot.lastName;
             if (fullName == name) {
@@ -81,7 +81,7 @@ class App extends React.Component {
             });
 
             // Determine if they should checkin or checkout
-            var availabilityFound = false;
+            let availabilityFound = false;
             this.state.availabilities.forEach((avail) => {
                 if (avail.pilotId == id) {
                     availabilityFound = true;
@@ -119,7 +119,7 @@ class App extends React.Component {
             // Reset the input field
             this.inputBox.current.value = "";
 
-            // Reset the action and searchInput variables
+            // Reset the action and searchInput constiables
             this.setState({
                 action: "",
                 searchInput: "",

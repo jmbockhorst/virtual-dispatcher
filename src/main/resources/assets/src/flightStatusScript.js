@@ -34,10 +34,10 @@ class App extends React.Component {
     }
 
     loadData() {
-        var pilotSocket = new WebSocket('ws://' + window.location.host + "/ws/pilots");
+        const pilotSocket = new WebSocket('ws://' + window.location.host + "/ws/pilots");
 
         pilotSocket.onmessage = (message) => {
-            var pilotList = JSON.parse(message.data);
+            const pilotList = JSON.parse(message.data);
             const newPilots = [];
             pilotList.forEach(function (pilot) {
                 newPilots.push(pilot);
@@ -50,10 +50,10 @@ class App extends React.Component {
     }
 
     loadFlightInfo() {
-        var flightSocket = new WebSocket('ws://' + window.location.host + "/ws/flights");
+        const flightSocket = new WebSocket('ws://' + window.location.host + "/ws/flights");
 
         flightSocket.onmessage = (message) => {
-            var flightList = JSON.parse(message.data);
+            const flightList = JSON.parse(message.data);
 
             // Reverse for loop to get latest flight
             for (let i = flightList.length - 1; i >= 0; i--) {
@@ -72,11 +72,11 @@ class App extends React.Component {
         e.preventDefault();
 
         // Get name and pilot_id
-        var name = this.inputBox.current.value;
+        const name = this.inputBox.current.value;
 
         // Check if pilot name is valid
-        var found = false;
-        var id = 0;
+        let found = false;
+        let id = 0;
         this.state.pilots.forEach((pilot) => {
             const fullName = pilot.firstName + " " + pilot.lastName;
             if (fullName == name) {

@@ -22,7 +22,7 @@ class FlightList extends React.Component {
     }
 
     getPilotName(id) {
-        for (let pilot of this.props.pilots) {
+        for (const pilot of this.props.pilots) {
             if (pilot.id == id) {
                 return pilot.firstName + " " + pilot.lastName;
             }
@@ -32,11 +32,11 @@ class FlightList extends React.Component {
     }
 
     render() {
-        var flightList = [];
+        const flightList = [];
 
         const main = this;
 
-        var currentName = "";
+        let currentName = "";
         this.props.flights.forEach(function (flight, i) {
             //Get pilot name of that flight
             const name = main.getPilotName(flight.pilotId);
@@ -75,11 +75,11 @@ class App extends React.Component {
     }
 
     loadData() {
-        var pilotSocket = new WebSocket('ws://' + window.location.host + "/ws/pilots");
-        var flightSocket = new WebSocket('ws://' + window.location.host + "/ws/flights");
+        const pilotSocket = new WebSocket('ws://' + window.location.host + "/ws/pilots");
+        const flightSocket = new WebSocket('ws://' + window.location.host + "/ws/flights");
 
         pilotSocket.onmessage = (message) => {
-            var pilotList = JSON.parse(message.data);
+            const pilotList = JSON.parse(message.data);
             const newPilots = [];
             pilotList.forEach(function (pilot) {
                 newPilots.push(pilot);
@@ -91,7 +91,7 @@ class App extends React.Component {
         }
 
         flightSocket.onmessage = (message) => {
-            var flightList = JSON.parse(message.data);
+            const flightList = JSON.parse(message.data);
             const newFlights = [];
             flightList.forEach(function (flight) {
                 //Put each flight in array spot associated with plane
