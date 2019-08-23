@@ -1,5 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import $ from 'jquery';
+
 import './css/baseStyle.css';
 import './css/statusStyle.css';
 import logo from './images/logo.png';
