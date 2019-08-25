@@ -18,14 +18,13 @@
     <groupId>edu.ucm.flight</groupId>
     <artifactId>virtual-dispatcher</artifactId>
     <version>1.0.0</version>
-    <packaging>jar</packaging>
+    <packaging>${artifact-packaging}</packaging>
 
     <name>VirtualDispatcher</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <dropwizard.version>1.3.7</dropwizard.version>
         <mainClass>virtualdispatcher.VirtualDispatcherApplication</mainClass>
     </properties>
 
@@ -83,50 +82,6 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
             <plugin>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.0.2</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                            <mainClass>${mainClass}</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.6.1</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>3.0.1</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.0.0-M1</version>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>1.3.2</version>
@@ -139,21 +94,6 @@
                             <goal>exec</goal>
                         </goals>
                         <phase>initialize</phase>
-                        <configuration>
-                            <executable>npm</executable>
-                            <arguments>
-                                <argument>install</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                    <!-- Required: The following will ensure `npm install` is called
-                         before anything else during the 'Clean Lifecycle' -->
-                    <execution>
-                        <id>npm install (clean)</id>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <phase>pre-clean</phase>
                         <configuration>
                             <executable>npm</executable>
                             <arguments>
@@ -184,20 +124,28 @@
         </plugins>
     </build>
 
-    <reporting>
-        <plugins>
-            <plugin>
-                <artifactId>maven-project-info-reports-plugin</artifactId>
-                <version>2.8.1</version>
-                <configuration>
-                    <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
-                    <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.10.3</version>
-            </plugin>
-        </plugins>
-    </reporting>
+    <profiles>
+        <profile>
+            <id>development</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <artifact-packaging>jar</artifact-packaging>
+            </properties>
+        </profile>
+        <profile>
+            <id>production</id>
+            <properties>
+                <artifact-packaging>war</artifact-packaging>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 </project>
